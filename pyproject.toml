@@ -24,7 +24,9 @@ dependencies = [
     "flask",
     "vllm",
     "aiofiles",
-    "sentence_transformers"
+    "sentence_transformers",
+    "pip>=24.3.1",
+    "ipykernel>=6.29.5",
 ]
 
 [tool.pyright]

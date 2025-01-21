@@ -38,11 +38,17 @@ with model.edit(" "):
     acts = submodule.input[0]
     submodule.ae(acts, hook=True)
 
-# submodule_dict,model = load_gemma_autoencoders(
-#             model,
-#             ae_layers=[10],
-#             average_l0s={10: 47},
-#             size="131k",
-#             type="res"
-#         )
 # %%
+
+from sae_auto_interp.config import CacheConfig
+from sae_auto_interp.features import FeatureCache
+from sae_auto_interp.utils import load_tokenized_data
+
+cfg = CacheConfig(
+    dataset_repo="apollo-research/roneneldan-TinyStories-tokenizer-gpt2",
+    dataset_split="train[:1%]",
+    batch_size=8,
+    ctx_len=64,
+    n_tokens=1_000_000,
+    n_splits=5,
+)

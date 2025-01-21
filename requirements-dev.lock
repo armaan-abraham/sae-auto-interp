@@ -48,6 +48,8 @@ attrs==24.3.0
     # via aiohttp
     # via jsonschema
     # via referencing
+awscli==1.37.2
+    # via mlsae
 beartype==0.14.1
     # via transformer-lens
 better-abc==0.0.3
@@ -62,6 +64,12 @@ blinker==1.9.0
     # via flask
 blobfile==3.0.0
     # via sae-auto-interp
+boto3==1.36.2
+    # via mlsae
+botocore==1.36.2
+    # via awscli
+    # via boto3
+    # via s3transfer
 cachetools==5.5.0
     # via google-auth
 certifi==2024.12.14
@@ -79,13 +87,20 @@ click==8.1.8
 cloudpickle==3.1.1
     # via outlines
     # via vllm
+colorama==0.4.6
+    # via awscli
 colorful==0.5.6
     # via ray
 comm==0.2.2
     # via ipykernel
 compressed-tensors==0.8.1
     # via vllm
+contourpy==1.3.1
+    # via matplotlib
+cycler==0.12.1
+    # via matplotlib
 datasets==3.2.0
+    # via mlsae
     # via sae
     # via sae-auto-interp
     # via transformer-lens
@@ -111,7 +126,10 @@ docker-pycreds==0.4.0
     # via wandb
 docstring-parser==0.16
     # via simple-parsing
+docutils==0.16
+    # via awscli
 einops==0.8.0
+    # via mlsae
     # via nnsight
     # via sae
     # via transformer-lens
@@ -141,6 +159,8 @@ fire==0.7.0
     # via sae-auto-interp
 flask==3.1.0
     # via sae-auto-interp
+fonttools==4.55.4
+    # via matplotlib
 frozenlist==1.5.0
     # via aiohttp
     # via aiosignal
@@ -196,6 +216,7 @@ interegular==0.3.3
     # via outlines
     # via outlines-core
 ipykernel==6.29.5
+    # via mlsae
     # via sae-auto-interp
 ipython==8.31.0
     # via ipykernel
@@ -212,6 +233,9 @@ jinja2==3.1.5
     # via torch
 jiter==0.8.2
     # via openai
+jmespath==1.0.1
+    # via boto3
+    # via botocore
 joblib==1.4.2
     # via scikit-learn
 jsonschema==4.23.0
@@ -226,6 +250,8 @@ jupyter-client==8.6.3
 jupyter-core==5.7.2
     # via ipykernel
     # via jupyter-client
+kiwisolver==1.4.8
+    # via matplotlib
 lark==1.2.2
     # via outlines
     # via vllm
@@ -242,6 +268,9 @@ markdown-it-py==3.0.0
 markupsafe==3.0.2
     # via jinja2
     # via werkzeug
+matplotlib==3.10.0
+    # via mlsae
+    # via seaborn
 matplotlib-inline==0.1.7
     # via ipykernel
     # via ipython
@@ -253,6 +282,8 @@ memray==1.15.0
     # via ray
 mistral-common==1.5.1
     # via vllm
+mlsae @ git+https://github.com/armaan-abraham/mlsae@9f5d17fef53e106990e3847dc03c93945a6459fa
+    # via sae-auto-interp
 mpmath==1.3.0
     # via sympy
 msgpack==1.1.0
@@ -276,15 +307,18 @@ nnsight==0.3.7
 numpy==1.26.4
     # via accelerate
     # via bitsandbytes
+    # via contourpy
     # via datasets
     # via diffusers
     # via gguf
+    # via matplotlib
     # via mistral-common
     # via opencv-python-headless
     # via outlines
     # via pandas
     # via scikit-learn
     # via scipy
+    # via seaborn
     # via torchvision
     # via transformer-lens
     # via transformers
@@ -341,20 +375,26 @@ packaging==24.2
     # via huggingface-hub
     # via ipykernel
     # via lm-format-enforcer
+    # via matplotlib
     # via pytest
     # via ray
     # via transformers
 pandas==2.2.3
     # via datasets
+    # via mlsae
+    # via seaborn
     # via transformer-lens
 parso==0.8.4
     # via jedi
 partial-json-parser==0.2.1.1.post5
     # via vllm
+petname==2.6
+    # via mlsae
 pexpect==4.9.0
     # via ipython
 pillow==10.4.0
     # via diffusers
+    # via matplotlib
     # via mistral-common
     # via sentence-transformers
     # via torchvision
@@ -432,10 +472,15 @@ pydantic-core==2.27.2
 pygments==2.19.1
     # via ipython
     # via rich
+pyparsing==3.2.1
+    # via matplotlib
 pytest==8.3.4
+    # via mlsae
     # via xgrammar
 python-dateutil==2.9.0.post0
+    # via botocore
     # via jupyter-client
+    # via matplotlib
     # via pandas
 python-dotenv==1.0.1
     # via uvicorn
@@ -447,6 +492,7 @@ pytz==2024.2
     # via pandas
 pyyaml==6.0.2
     # via accelerate
+    # via awscli
     # via datasets
     # via gguf
     # via huggingface-hub
@@ -490,8 +536,12 @@ rich==13.9.4
 rpds-py==0.22.3
     # via jsonschema
     # via referencing
-rsa==4.9
+rsa==4.7.2
+    # via awscli
     # via google-auth
+s3transfer==0.11.1
+    # via awscli
+    # via boto3
 sae @ git+https://github.com/EleutherAI/sae@0b58af41d3da3dcd8df31839612c6dc91c310459
     # via sae-auto-interp
 safetensors==0.5.2
@@ -505,6 +555,8 @@ scikit-learn==1.6.1
 scipy==1.15.1
     # via scikit-learn
     # via sentence-transformers
+seaborn==0.13.2
+    # via mlsae
 sentence-transformers==3.3.1
     # via sae-auto-interp
 sentencepiece==0.2.0
@@ -562,6 +614,7 @@ torch==2.5.1
     # via accelerate
     # via bitsandbytes
     # via compressed-tensors
+    # via mlsae
     # via nnsight
     # via outlines
     # via sae
@@ -584,6 +637,7 @@ tqdm==4.67.1
     # via datasets
     # via gguf
     # via huggingface-hub
+    # via mlsae
     # via openai
     # via outlines
     # via sentence-transformers
@@ -598,6 +652,7 @@ traitlets==5.14.3
     # via jupyter-core
     # via matplotlib-inline
 transformer-lens==2.9.0
+    # via mlsae
     # via sae-auto-interp
 transformers==4.48.0
     # via compressed-tensors
@@ -638,6 +693,7 @@ uc-micro-py==1.0.3
     # via linkify-it-py
 urllib3==2.3.0
     # via blobfile
+    # via botocore
     # via requests
     # via sentry-sdk
 uvicorn==0.34.0
@@ -649,6 +705,7 @@ virtualenv==20.29.1
 vllm==0.6.6.post1
     # via sae-auto-interp
 wandb==0.19.4
+    # via mlsae
     # via transformer-lens
 watchfiles==1.0.4
     # via uvicorn

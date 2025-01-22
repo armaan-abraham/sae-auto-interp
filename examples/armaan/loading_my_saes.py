@@ -1,15 +1,16 @@
 # %%
 from nnsight import LanguageModel
 
-model = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
+model_orig = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
 
 # %%
 
 layer = 6
 site = "resid_pre"
+submodule_path = f"layers.{layer}.{site}"
 
 # %%
-submodule = model.transformer.h[layer]
+submodule = model_orig.transformer.h[layer-1]
 
 # %%
 from mlsae.model import DeepSAE
@@ -34,8 +35,9 @@ autoencoder_latents = AutoencoderLatents(
 
 submodule.ae = autoencoder_latents
 # %%
-with model.edit(" "):
-    acts = submodule.input[0]
+
+with model_orig.edit(" ") as model:
+    acts = submodule.output[0]
     submodule.ae(acts, hook=True)
 
 # %%
@@ -45,10 +47,33 @@ from sae_auto_interp.features import FeatureCache
 from sae_auto_interp.utils import load_tokenized_data
 
 cfg = CacheConfig(
-    dataset_repo="apollo-research/roneneldan-TinyStories-tokenizer-gpt2",
+    dataset_repo="roneneldan/TinyStories",
     dataset_split="train[:1%]",
     batch_size=8,
     ctx_len=64,
     n_tokens=1_000_000,
     n_splits=5,
 )
+
+# %%
+
+tokens = load_tokenized_data(
+    ctx_len=cfg.ctx_len,
+    tokenizer=model.tokenizer,
+    dataset_repo=cfg.dataset_repo,
+    dataset_split=cfg.dataset_split,
+    dataset_row="text",
+)
+
+# %%
+
+submodule_dict = {submodule_path: submodule}
+
+cache = FeatureCache(
+    model,
+    submodule_dict,
+    batch_size = cfg.batch_size,
+)
+
+cache.run(cfg.n_tokens, tokens)
+# %%

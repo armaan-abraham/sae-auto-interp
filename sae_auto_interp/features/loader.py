@@ -115,6 +115,8 @@ class FeatureDataset:
         cfg: FeatureConfig,
         modules: Optional[List[str]] = None,
         features: Optional[Dict[str, Union[int, torch.Tensor]]] = None,
+        # Add tokenizer argument due to bug in load_tokenizer
+        tokenizer: Optional[Callable] = None,
     ):
         """
         Initialize a FeatureDataset.
@@ -136,7 +138,10 @@ class FeatureDataset:
         cache_config_dir = f"{raw_dir}/{modules[0]}/config.json"
         with open(cache_config_dir, "r") as f:
             cache_config = json.load(f)
-        self.tokenizer = load_tokenizer(cache_config["model_name"])
+        if tokenizer is None:
+            self.tokenizer = load_tokenizer(cache_config["model_name"])
+        else:
+            self.tokenizer = tokenizer
         self.tokens = load_tokenized_data(
             cache_config["ctx_len"],
             self.tokenizer,

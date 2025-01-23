@@ -15,10 +15,11 @@ submodule = model_orig.transformer.h[layer-1]
 # %%
 from mlsae.model import DeepSAE
 
-arch_name = "12"
+arch_name = "10"
 # sae = DeepSAE.load("5", load_from_s3=True, model_id="duly-needed-dassie").eval()
 # sae = DeepSAE.load("9", load_from_s3=True, model_id="safely-bright-kit").eval()
-sae = DeepSAE.load(arch_name, load_from_s3=True, model_id="hardly-quick-dingo").eval()
+sae = DeepSAE.load(arch_name, load_from_s3=True, model_id="merely-mature-jay").eval()
+
 sae.start_act_stat_tracking()
 
 # %%
@@ -35,8 +36,6 @@ autoencoder_latents = AutoencoderLatents(
     width=sae.sparse_dim,
 )
 
-
-# %%
 
 submodule.ae = autoencoder_latents
 # %%
@@ -56,7 +55,7 @@ cfg = CacheConfig(
     dataset_split="train[:1%]",
     batch_size=8,
     ctx_len=64,
-    n_tokens=1_000_000,
+    n_tokens=3_000_000,
     n_splits=5,
     dataset_row="text",
 )
@@ -70,6 +69,14 @@ tokens = load_tokenized_data(
     dataset_split=cfg.dataset_split,
     dataset_row="text",
 )
+# %%
+import torch
+print(tokens[:10, :10])
+print(model.tokenizer.pad_token_id)
+print(model.tokenizer.eos_token_id)
+print(model.tokenizer.bos_token_id)
+
+print(torch.sum(torch.sum(tokens == model.tokenizer.pad_token_id, dim=1) == 1))
 
 # %%
 

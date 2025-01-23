@@ -15,11 +15,16 @@ submodule = model_orig.transformer.h[layer-1]
 # %%
 from mlsae.model import DeepSAE
 
-sae = DeepSAE.load("9", load_from_s3=True, model_id="safely-bright-kit").eval()
+arch_name = "12"
+# sae = DeepSAE.load("5", load_from_s3=True, model_id="duly-needed-dassie").eval()
+# sae = DeepSAE.load("9", load_from_s3=True, model_id="safely-bright-kit").eval()
+sae = DeepSAE.load(arch_name, load_from_s3=True, model_id="hardly-quick-dingo").eval()
+sae.start_act_stat_tracking()
 
 # %%
 from functools import partial
 from sae_auto_interp.autoencoders.wrapper import AutoencoderLatents
+
 
 def _forward(sae, x):
     return sae(x * 10)[4]
@@ -81,16 +86,20 @@ cache.run(cfg.n_tokens, tokens)
 
 # %%
 
+print(sae.get_activation_stats())
+
+# %%
+
 cache.save_splits(
     n_splits=cfg.n_splits,  # We split the activation and location indices into different files to make loading faster
-    save_dir="latents"
+    save_dir=f"latents_{arch_name}"
 )
 
 # %%
 # The config of the cache should be saved with the results such that it can be loaded later.
 
 cache.save_config(
-    save_dir="latents",
+    save_dir=f"latents_{arch_name}",
     cfg=cfg,
     model_name="roneneldan/TinyStories-3M"
 )

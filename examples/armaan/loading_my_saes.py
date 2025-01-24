@@ -2,6 +2,8 @@
 from nnsight import LanguageModel
 
 model_orig = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
+# Later tokenization functions will assume that EOS token != PAD token
+model_orig.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%
 
@@ -15,10 +17,14 @@ submodule = model_orig.transformer.h[layer-1]
 # %%
 from mlsae.model import DeepSAE
 
-arch_name = "10"
-# sae = DeepSAE.load("5", load_from_s3=True, model_id="duly-needed-dassie").eval()
-# sae = DeepSAE.load("9", load_from_s3=True, model_id="safely-bright-kit").eval()
-sae = DeepSAE.load(arch_name, load_from_s3=True, model_id="merely-mature-jay").eval()
+arch_name = "14"
+arch_name_to_id = {
+    "10": "merely-mature-jay",
+    "9": "safely-bright-kit",
+    "5": "duly-needed-dassie",
+    "14": "overly-clear-crane",
+}
+sae = DeepSAE.load(arch_name, load_from_s3=True, model_id=arch_name_to_id[arch_name]).eval()
 
 sae.start_act_stat_tracking()
 
@@ -69,14 +75,6 @@ tokens = load_tokenized_data(
     dataset_split=cfg.dataset_split,
     dataset_row="text",
 )
-# %%
-import torch
-print(tokens[:10, :10])
-print(model.tokenizer.pad_token_id)
-print(model.tokenizer.eos_token_id)
-print(model.tokenizer.bos_token_id)
-
-print(torch.sum(torch.sum(tokens == model.tokenizer.pad_token_id, dim=1) == 1))
 
 # %%
 
@@ -127,10 +125,10 @@ feature_cfg = FeatureConfig(
 )
 
 # %%
-feature_dict = {submodule_path: torch.arange(0,50)} # The what latents to explain
+feature_dict = {submodule_path: torch.arange(0,40)} # The what latents to explain
 
 dataset = FeatureDataset(
-        raw_dir="latents", # The folder where the cache is stored
+        raw_dir=f"latents_{arch_name}", # The folder where the cache is stored
         cfg=feature_cfg,
         modules=[submodule_path],
         features=feature_dict,
@@ -171,7 +169,7 @@ from sae_auto_interp.pipeline import Pipeline, process_wrapper
 from sae_auto_interp.explainers import DefaultExplainer
 from pathlib import Path
 
-EXPLANATION_DIR = Path(os.getcwd()) / "results" / "explanations"
+EXPLANATION_DIR = Path(os.getcwd()) / f"explanations_{arch_name}"
 EXPLANATION_DIR.mkdir(parents=True, exist_ok=True)
 
 # The function that saves the explanations
@@ -204,8 +202,8 @@ asyncio.run(pipeline.run(number_of_parallel_latents)) # This will start generati
 # %%
 
 experiment_cfg = ExperimentConfig(
-    n_examples_test=20, # Number of examples to sample for testing
-    n_quantiles=10, # Number of quantiles to sample
+    n_examples_test=15, # Number of examples to sample for testing
+    n_quantiles=3, # Number of quantiles to sample
     example_ctx_len=32, # Length of each example
     test_type="quantiles", # Type of sampler to use for testing. 
 )
@@ -235,7 +233,7 @@ def scorer_preprocess(result):
     record.extra_examples = record.random_examples
     return record
 
-SCORE_DIR = Path(os.getcwd()) / "results" / "scores"
+SCORE_DIR = Path(os.getcwd()) / f"scores_{arch_name}"
 SCORE_DIR.mkdir(parents=True, exist_ok=True)
 
 # Saves the score to a file

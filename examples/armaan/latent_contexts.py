@@ -17,7 +17,7 @@ from IPython.display import clear_output
 
 module_name = "layers.6.resid_pre"
 width = 256
-raw_dir = f"latents_12"
+raw_dir = f"latents_14"
 
 
 
@@ -123,21 +123,24 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 # %%
 model = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
+model.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%
 def load_examples():
     
     feature_cfg = FeatureConfig(width=width)
-    experiment_cfg = ExperimentConfig(n_random=0,train_type="quantiles",n_examples_train=40,n_quantiles=10,example_ctx_len=32)
+    experiment_cfg = ExperimentConfig(n_random=0,train_type="top",n_examples_train=15,n_quantiles=3,example_ctx_len=32)
 
     #module = f".model.layers.{layer_name}.post_feedforward_layernorm"
     module = module_name
+
+    print(f"Raw dir: {raw_dir}")
     
     dataset = FeatureDataset(
         raw_dir=raw_dir,
         cfg=feature_cfg,
         modules=[module],
-        features={module:torch.tensor(torch.arange(0, 30))},
+        features={module:torch.tensor(torch.arange(0, 40))},
         tokenizer=model.tokenizer,
     )
     constructor=partial(
@@ -309,6 +312,4 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 
 # %%
-
 plot_examples()
-# %%

@@ -405,7 +405,7 @@ pillow==10.4.0
     # via sentence-transformers
     # via torchvision
     # via vllm
-pip==24.3.1
+pip==25.0
     # via sae-auto-interp
 platformdirs==4.3.6
     # via jupyter-core

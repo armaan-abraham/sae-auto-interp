@@ -25,9 +25,9 @@ dependencies = [
     "vllm",
     "aiofiles",
     "sentence_transformers",
-    "pip>=24.3.1",
+    "pip>=25.0",
     "ipykernel>=6.29.5",
-    "mlsae@git+https://github.com/armaan-abraham/mlsae",
+    "mlsae@git+https://github.com/armaan-abraham/mlsae@a00793f",
     "ipywidgets>=8.1.5",
 ]
 

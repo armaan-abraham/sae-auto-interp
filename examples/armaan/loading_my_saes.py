@@ -17,14 +17,19 @@ submodule = model_orig.transformer.h[layer-1]
 # %%
 from mlsae.model import DeepSAE
 
-arch_name = "14"
+archs = ["12", "8", "1"]
+
+arch_name = "1"
 arch_name_to_id = {
+    "8": "gently-cool-serval",
+    "1": "mainly-living-sheep",
+    "12": "hardly-quick-dingo",
     "10": "merely-mature-jay",
     "9": "safely-bright-kit",
     "5": "duly-needed-dassie",
     "14": "overly-clear-crane",
 }
-sae = DeepSAE.load(arch_name, load_from_s3=True, model_id=arch_name_to_id[arch_name]).eval()
+sae = DeepSAE.load(arch_name, load_from_s3=False, model_id=arch_name_to_id[arch_name]).eval()
 
 sae.start_act_stat_tracking()
 
@@ -61,7 +66,7 @@ cfg = CacheConfig(
     dataset_split="train[:1%]",
     batch_size=8,
     ctx_len=64,
-    n_tokens=3_000_000,
+    n_tokens=10_000_000,
     n_splits=5,
     dataset_row="text",
 )
@@ -125,7 +130,7 @@ feature_cfg = FeatureConfig(
 )
 
 # %%
-feature_dict = {submodule_path: torch.arange(0,40)} # The what latents to explain
+feature_dict = {submodule_path: torch.arange(0,100)} # What latents to explain
 
 dataset = FeatureDataset(
         raw_dir=f"latents_{arch_name}", # The folder where the cache is stored
@@ -138,9 +143,9 @@ dataset = FeatureDataset(
 # %%
 
 experiment_cfg = ExperimentConfig(
-    n_examples_train=40, # Number of examples to sample for training
-    example_ctx_len=32, # Length of each example
-    train_type="top", # Type of sampler to use for training. 
+    n_examples_train=100, # Number of examples to sample for training
+    example_ctx_len=64, # Length of each example
+    train_type="quantiles", # Type of sampler to use for training. 
 )
 
 # %%
@@ -196,15 +201,15 @@ pipeline = Pipeline(
     loader,
     explainer_pipe,
 )
-number_of_parallel_latents = 10
+number_of_parallel_latents = 20
 asyncio.run(pipeline.run(number_of_parallel_latents)) # This will start generating the explanations.
 
 # %%
 
 experiment_cfg = ExperimentConfig(
-    n_examples_test=15, # Number of examples to sample for testing
-    n_quantiles=3, # Number of quantiles to sample
-    example_ctx_len=32, # Length of each example
+    n_examples_test=40, # Number of examples to sample for testing
+    n_quantiles=5, # Number of quantiles to sample
+    example_ctx_len=64, # Length of each example
     test_type="quantiles", # Type of sampler to use for testing. 
 )
 constructor=partial(
@@ -254,5 +259,7 @@ pipeline = Pipeline(
     explainer_pipe,
     scorer_pipe,
 )
-number_of_parallel_latents = 10
+number_of_parallel_latents = 20
 asyncio.run(pipeline.run(number_of_parallel_latents))
+
+# %%

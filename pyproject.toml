@@ -13,7 +13,7 @@ dependencies = [
     "datasets",
     "nnsight",
     "orjson",
-    "sae@git+https://github.com/EleutherAI/sae",
+    "sae@git+https://github.com/EleutherAI/sae@4c73890dfe94529037fa5d0f2592124f80f41f56",
     "safetensors",
     "simple_parsing",
     "torchtyping",
@@ -25,9 +25,9 @@ dependencies = [
     "vllm",
     "aiofiles",
     "sentence_transformers",
-    "pip>=25.0",
+    "pip>=25.0.1",
     "ipykernel>=6.29.5",
-    "mlsae@git+https://github.com/armaan-abraham/mlsae@a00793f",
+    "mlsae@git+https://github.com/armaan-abraham/mlsae@d697498",
     "ipywidgets>=8.1.5",
 ]
 

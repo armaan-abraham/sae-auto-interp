@@ -9,6 +9,7 @@ def load_tokenized_data(
     dataset_name: str = "",
     dataset_row: str = "raw_content",
     seed: int = 22,
+    streaming: bool = False,
 ):
     """
     Load a huggingface dataset, tokenize it, and shuffle.
@@ -16,8 +17,9 @@ def load_tokenized_data(
     from datasets import load_dataset
     from transformer_lens import utils
     print(dataset_repo,dataset_name,dataset_split)
-    data = load_dataset(dataset_repo, name=dataset_name, split=dataset_split)
-    tokens = utils.tokenize_and_concatenate(data, tokenizer, max_length=ctx_len,column_name=dataset_row)
+    print(streaming)
+    data = load_dataset(dataset_repo, name=dataset_name, split=dataset_split, streaming=streaming)
+    tokens = utils.tokenize_and_concatenate(data, tokenizer, max_length=ctx_len,column_name=dataset_row, streaming=streaming)
 
     tokens = tokens.shuffle(seed)["tokens"]
 

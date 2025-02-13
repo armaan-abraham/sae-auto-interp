@@ -13,6 +13,7 @@ from ...logger import logger
 from ..scorer import Scorer, ScorerResult
 from .sample import ClassifierOutput, Sample
 
+print("2222")
 
 class Classifier(Scorer):
     def __init__(
@@ -31,6 +32,7 @@ class Classifier(Scorer):
         self.batch_size = batch_size
         self.generation_kwargs = generation_kwargs
         self.log_prob = log_prob
+        print("3333")
 
 
 
@@ -38,10 +40,14 @@ class Classifier(Scorer):
         self,
         record: FeatureRecord,
     ) -> list[ClassifierOutput]:
+        print("Classifier call", type(record))
         samples = self._prepare(record)
+        print("Classifier prepare", len(samples))
 
         random.shuffle(samples)
+        print("Classifier shuffle", len(samples))
         samples = self._batch(samples)
+        print("Classifier batch", len(samples))
         results = await self._query(
             record.explanation,
             samples,
@@ -80,6 +86,7 @@ class Classifier(Scorer):
         """
         Generate predictions for a batch of samples.
         """
+        print("HELLLO")
 
         prompt = self._build_prompt(explanation, batch)
         if self.log_prob:
@@ -124,7 +131,9 @@ class Classifier(Scorer):
     def _parse(self, string, logprobs=None):
         pattern = r"\[.*?\]"
         match = re.search(pattern, string)
+        print("Yo", string)
 
+        import traceback
         try:
             array = json.loads(match.group(0))
             assert len(array) == self.batch_size
@@ -135,6 +144,7 @@ class Classifier(Scorer):
             probabilities = None
             return array, probabilities
         except (json.JSONDecodeError, AssertionError, AttributeError) as e:
+            traceback.print_exc()
             logger.error(f"Parsing array failed: {e}")
             if self.log_prob:
                 return [-1] * self.batch_size, [-1] * self.batch_size

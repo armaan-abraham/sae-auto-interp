@@ -15,9 +15,10 @@ import json
 import ipywidgets as widgets
 from IPython.display import clear_output
 
-module_name = "layers.6.resid_pre"
-width = 256
-raw_dir = f"latents_12"
+module_name = "layers.9.resid_pre"
+width = 24576
+arch = "0-0"
+raw_dir = f"latents_{arch}"
 
 
 
@@ -122,7 +123,7 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 
 # %%
-model = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
+model = LanguageModel("gpt2", device_map="cuda", dispatch=True)
 model.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%
@@ -135,13 +136,15 @@ def load_examples():
     module = module_name
 
     print(f"Raw dir: {raw_dir}")
+    tokens = torch.load("/root/sae-auto-interp/examples/armaan/tokens.pt")
     
     dataset = FeatureDataset(
         raw_dir=raw_dir,
         cfg=feature_cfg,
         modules=[module],
-        features={module:torch.tensor(torch.arange(0, 40))},
+        features={module:torch.tensor(torch.arange(0, 10))},
         tokenizer=model.tokenizer,
+        tokens=tokens,
     )
     constructor=partial(
                 default_constructor,

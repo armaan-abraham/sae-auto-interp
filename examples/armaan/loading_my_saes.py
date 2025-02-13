@@ -1,13 +1,13 @@
 # %%
 from nnsight import LanguageModel
 
-model_orig = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
+model_orig = LanguageModel("gpt2", device_map="cuda", dispatch=True)
 # Later tokenization functions will assume that EOS token != PAD token
 model_orig.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%
 
-layer = 6
+layer = 9
 site = "resid_pre"
 submodule_path = f"layers.{layer}.{site}"
 
@@ -15,19 +15,15 @@ submodule_path = f"layers.{layer}.{site}"
 submodule = model_orig.transformer.h[layer-1]
 
 # %%
+import importlib
+import mlsae.model.model
+importlib.reload(mlsae.model.model)
 from mlsae.model import DeepSAE
 
-archs = ["12", "8", "1"]
-
-arch_name = "1"
+arch_name = "0-0"
 arch_name_to_id = {
-    "8": "gently-cool-serval",
-    "1": "mainly-living-sheep",
-    "12": "hardly-quick-dingo",
-    "10": "merely-mature-jay",
-    "9": "safely-bright-kit",
-    "5": "duly-needed-dassie",
-    "14": "overly-clear-crane",
+    "0-0": "mildly-good-bear",
+    "2-2": "only-suited-cat",
 }
 sae = DeepSAE.load(arch_name, load_from_s3=False, model_id=arch_name_to_id[arch_name]).eval()
 
@@ -39,7 +35,9 @@ from sae_auto_interp.autoencoders.wrapper import AutoencoderLatents
 
 
 def _forward(sae, x):
-    return sae(x * 10)[4]
+    x -= x.mean(dim=-1, keepdim=True)
+    x /= x.norm(dim=-1, keepdim=True)
+    return sae(x)[3]
 
 autoencoder_latents = AutoencoderLatents(
     sae,
@@ -49,6 +47,7 @@ autoencoder_latents = AutoencoderLatents(
 
 
 submodule.ae = autoencoder_latents
+
 # %%
 
 with model_orig.edit(" ") as model:
@@ -57,25 +56,61 @@ with model_orig.edit(" ") as model:
 
 # %%
 
+import importlib
+import sae_auto_interp.utils
+import transformer_lens.utils
+importlib.reload(sae_auto_interp.utils)
+importlib.reload(transformer_lens.utils)
 from sae_auto_interp.config import CacheConfig
 from sae_auto_interp.features import FeatureCache
 from sae_auto_interp.utils import load_tokenized_data
 
 cfg = CacheConfig(
-    dataset_repo="roneneldan/TinyStories",
-    dataset_split="train[:1%]",
+    dataset_repo="allenai/c4",
+    dataset_split="train",
     batch_size=8,
     ctx_len=64,
-    n_tokens=10_000_000,
+    n_tokens=1_000_000,
     n_splits=5,
     dataset_row="text",
 )
 
 # %%
 
-tokens = load_tokenized_data(
+from mlsae.data import stream_training_chunks
+
+
+iterator = stream_training_chunks()
+
+# %%
+import torch
+
+MAX_TOKENS = 1_000_000
+chunks = []
+num_tokens = 0
+
+while num_tokens < MAX_TOKENS:
+    chunk = next(iterator)
+    chunks.append(chunk)
+    num_tokens += chunk.numel()
+
+tokens = torch.cat(chunks)
+
+print(tokens.shape)
+
+# %%
+
+torch.save(tokens, f"tokens.pt")
+
+# %%
+
+tokens = torch.load("tokens.pt")
+
+# %%
+
+tokens_2 = load_tokenized_data(
     ctx_len=cfg.ctx_len,
-    tokenizer=model.tokenizer,
+    tokenizer=model_orig.tokenizer,
     dataset_repo=cfg.dataset_repo,
     dataset_split=cfg.dataset_split,
     dataset_row="text",
@@ -83,8 +118,13 @@ tokens = load_tokenized_data(
 
 # %%
 
+print(tokens_2.shape)
+
+# %%
+
 submodule_dict = {submodule_path: submodule}
 
+model.to("cuda")
 cache = FeatureCache(
     model,
     submodule_dict,
@@ -111,16 +151,65 @@ cache.save_splits(
 cache.save_config(
     save_dir=f"latents_{arch_name}",
     cfg=cfg,
-    model_name="roneneldan/TinyStories-3M"
+    model_name="gpt2"
 )
 
 # %%
+# Get dead features
+print(cache.cache.feature_locations[submodule_path])
+# Get unique feature indices from the third column (index 2) of feature_locations
+alive_features = cache.cache.feature_locations[submodule_path][:, 2].unique()
+print(f"Number of unique features activated: {len(alive_features)}")
+print(f"Number of dead features: {sae.sparse_dim - len(alive_features)}")
+torch.save(alive_features, f"alive_features_{arch_name}.pt")
+
+# %%
 from sae_auto_interp.config import ExperimentConfig, FeatureConfig
-from sae_auto_interp.features import (
-    FeatureDataset,
+import importlib
+import sae_auto_interp.features.loader
+importlib.reload(sae_auto_interp.features.loader)
+from sae_auto_interp.features.loader import FeatureDataset
+from sae_auto_interp.features.loader import (
     FeatureLoader
 )
 import torch
+from sae_auto_interp.features.constructors import default_constructor
+from sae_auto_interp.features.samplers import sample
+from sae_auto_interp.pipeline import Pipeline, process_wrapper
+from sae_auto_interp.explainers import DefaultExplainer
+import sae_auto_interp.explainers.explainer
+importlib.reload(sae_auto_interp.explainers.explainer)
+from pathlib import Path
+import asyncio
+import nest_asyncio
+from sae_auto_interp.explainers import explanation_loader
+import sae_auto_interp.scorers.classifier.classifier
+importlib.reload(sae_auto_interp.scorers.classifier.classifier)
+import sae_auto_interp.scorers.classifier.fuzz
+importlib.reload(sae_auto_interp.scorers.classifier.fuzz)
+from sae_auto_interp.scorers import FuzzingScorer
+from sae_auto_interp.clients import OpenRouter
+import os
+import orjson
+import pkgutil
+import importlib
+import sae_auto_interp
+
+def reload_recursively(package):
+    """Recursively reload all submodules of a package"""
+    for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
+        full_name = package.__name__ + '.' + name
+        module = importlib.import_module(full_name)
+        if is_pkg:
+            reload_recursively(module)
+        else:
+            importlib.reload(module)
+
+reload_recursively(sae_auto_interp)
+
+
+
+# %%
 
 feature_cfg = FeatureConfig(
     width=sae.sparse_dim, # The number of latents of your SAE
@@ -130,7 +219,8 @@ feature_cfg = FeatureConfig(
 )
 
 # %%
-feature_dict = {submodule_path: torch.arange(0,100)} # What latents to explain
+feature_dict = {submodule_path: alive_features[:100]} # What latents to explain
+# feature_dict = {submodule_path: torch.arange(10)}
 
 dataset = FeatureDataset(
         raw_dir=f"latents_{arch_name}", # The folder where the cache is stored
@@ -138,6 +228,7 @@ dataset = FeatureDataset(
         modules=[submodule_path],
         features=feature_dict,
         tokenizer=model.tokenizer,
+        tokens=tokens,
 )
 
 # %%
@@ -149,8 +240,6 @@ experiment_cfg = ExperimentConfig(
 )
 
 # %%
-from sae_auto_interp.features.constructors import default_constructor
-from sae_auto_interp.features.samplers import sample
 
 constructor=partial(
             default_constructor,
@@ -163,16 +252,11 @@ sampler=partial(sample,cfg=experiment_cfg)
 loader = FeatureLoader(dataset, constructor=constructor, sampler=sampler)
 
 # %%
-from sae_auto_interp.clients import OpenRouter
-import os
-import orjson
 
 client = OpenRouter("anthropic/claude-3.5-sonnet", api_key=os.environ["OPENROUTER_API_KEY"])
 
 # %%
-from sae_auto_interp.pipeline import Pipeline, process_wrapper
-from sae_auto_interp.explainers import DefaultExplainer
-from pathlib import Path
+
 
 EXPLANATION_DIR = Path(os.getcwd()) / f"explanations_{arch_name}"
 EXPLANATION_DIR.mkdir(parents=True, exist_ok=True)
@@ -192,11 +276,10 @@ explainer_pipe = process_wrapper(
         postprocess=explainer_postprocess,
     )
 
-# %%
-import asyncio
-import nest_asyncio
-nest_asyncio.apply()
 
+# %%
+
+nest_asyncio.apply()
 pipeline = Pipeline(
     loader,
     explainer_pipe,
@@ -207,10 +290,10 @@ asyncio.run(pipeline.run(number_of_parallel_latents)) # This will start generati
 # %%
 
 experiment_cfg = ExperimentConfig(
-    n_examples_test=40, # Number of examples to sample for testing
-    n_quantiles=5, # Number of quantiles to sample
+    n_examples_test=1, # Number of examples to sample for testing
+    n_quantiles=1, # Number of quantiles to sample
     example_ctx_len=64, # Length of each example
-    test_type="quantiles", # Type of sampler to use for testing. 
+    test_type="top", # Type of sampler to use for testing. 
 )
 constructor=partial(
             default_constructor,
@@ -224,8 +307,6 @@ loader = FeatureLoader(dataset, constructor=constructor, sampler=sampler)
 
 # %%
 
-from sae_auto_interp.explainers import explanation_loader
-from sae_auto_interp.scorers import FuzzingScorer
 
 # Load the explanations already generated
 explainer_pipe = partial(explanation_loader, explanation_dir=EXPLANATION_DIR)
@@ -233,6 +314,7 @@ explainer_pipe = partial(explanation_loader, explanation_dir=EXPLANATION_DIR)
 
 # Builds the record from result returned by the pipeline
 def scorer_preprocess(result):
+    print("Scorer preprocess")
     record = result.record   
     record.explanation = result.explanation
     record.extra_examples = record.random_examples
@@ -242,24 +324,26 @@ SCORE_DIR = Path(os.getcwd()) / f"scores_{arch_name}"
 SCORE_DIR.mkdir(parents=True, exist_ok=True)
 
 # Saves the score to a file
-def scorer_postprocess(result, score_dir):
+def scorer_postprocess(result):
+    print("Scorer postprocess")
     with open(SCORE_DIR / f"{result.record.feature}.txt", "wb") as f:
         f.write(orjson.dumps(result.score))
 
 scorer_pipe = process_wrapper(
     FuzzingScorer(client, tokenizer=dataset.tokenizer),
     preprocess=scorer_preprocess,
-    postprocess=partial(scorer_postprocess, score_dir="fuzz"),
+    postprocess=scorer_postprocess,
 )
 
 # %%
 
+nest_asyncio.apply()
 pipeline = Pipeline(
     loader,
     explainer_pipe,
     scorer_pipe,
 )
-number_of_parallel_latents = 20
+number_of_parallel_latents = 1
 asyncio.run(pipeline.run(number_of_parallel_latents))
 
 # %%

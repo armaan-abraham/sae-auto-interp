@@ -21,12 +21,12 @@ import mlsae.model.model
 importlib.reload(mlsae.model.model)
 from mlsae.model import DeepSAE
 
-arch_name = "2-2"
+arch_name = "0-0"
 arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",
 }
-sae = DeepSAE.load(arch_name, load_from_s3=False, model_id=arch_name_to_id[arch_name]).eval()
+sae = DeepSAE.load(arch_name, load_from_s3=True, model_id=arch_name_to_id[arch_name]).eval()
 
 sae.start_act_stat_tracking()
 
@@ -145,6 +145,23 @@ cache.save_splits(
     n_splits=cfg.n_splits,  # We split the activation and location indices into different files to make loading faster
     save_dir=f"latents_{arch_name}"
 )
+
+# %%
+arch_name = "2-2"
+import shutil
+# Name of the local folder
+folder = f"latents_{arch_name}"
+# Create a zip archive of the folder
+archive_name = f"{folder}.zip"
+shutil.make_archive(folder, 'zip', folder)
+# %%
+
+import boto3
+
+s3_client = boto3.client("s3")
+
+# %%
+s3_client.upload_file(f"{folder}.zip", "deep-sae", f"latents/{arch_name}.zip")
 
 # %%
 # The config of the cache should be saved with the results such that it can be loaded later.
@@ -317,7 +334,6 @@ explainer_pipe = partial(explanation_loader, explanation_dir=EXPLANATION_DIR)
 
 # Builds the record from result returned by the pipeline
 def scorer_preprocess(result):
-    print("Scorer preprocess")
     record = result.record   
     record.explanation = result.explanation
     record.extra_examples = record.random_examples
@@ -328,7 +344,6 @@ SCORE_DIR.mkdir(parents=True, exist_ok=True)
 
 # Saves the score to a file
 def scorer_postprocess(result):
-    print("Scorer postprocess")
     with open(SCORE_DIR / f"{result.record.feature}.txt", "wb") as f:
         f.write(orjson.dumps(result.score))
 

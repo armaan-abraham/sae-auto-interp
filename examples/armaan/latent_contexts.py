@@ -17,7 +17,7 @@ from IPython.display import clear_output
 
 module_name = "layers.9.resid_pre"
 width = 24576
-arch = "0-0"
+arch = "2-2"
 raw_dir = f"latents_{arch}"
 
 

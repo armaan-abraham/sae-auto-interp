@@ -50,7 +50,7 @@ import mlsae.model.model
 importlib.reload(mlsae.model.model)
 from mlsae.model import DeepSAE
 
-arch_name = "0-0"
+arch_name = "2-2"
 arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",

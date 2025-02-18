@@ -321,7 +321,6 @@ class FeatureLoader:
         """
         for buffer in self.feature_dataset.buffers:
             async for record in self._aprocess_buffer(buffer):
-                print("Feature loader")
                 yield record
 
     async def _aprocess_buffer(self, buffer):
@@ -358,7 +357,6 @@ class FeatureLoader:
             self.sampler(record)
         if self.transform is not None:
             self.transform(record)
-        print("Aprocess feature", record, record.test)
         return record
 
     def __iter__(self):

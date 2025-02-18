@@ -288,7 +288,7 @@ memray==1.15.0
     # via ray
 mistral-common==1.5.1
     # via vllm
-mlsae @ git+https://github.com/armaan-abraham/mlsae@d6974987b0f8e06bdf8658446c960d8aa10f8b62
+mlsae @ git+https://github.com/armaan-abraham/mlsae@265e816bf70124b6d7c0a475c074e2d81f9e19e5
     # via sae-auto-interp
 mpmath==1.3.0
     # via sympy

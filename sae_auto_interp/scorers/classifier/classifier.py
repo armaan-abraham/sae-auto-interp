@@ -40,14 +40,10 @@ class Classifier(Scorer):
         self,
         record: FeatureRecord,
     ) -> list[ClassifierOutput]:
-        print("Classifier call", type(record))
         samples = self._prepare(record)
-        print("Classifier prepare", len(samples))
 
         random.shuffle(samples)
-        print("Classifier shuffle", len(samples))
         samples = self._batch(samples)
-        print("Classifier batch", len(samples))
         results = await self._query(
             record.explanation,
             samples,
@@ -86,8 +82,6 @@ class Classifier(Scorer):
         """
         Generate predictions for a batch of samples.
         """
-        print("HELLLO")
-
         prompt = self._build_prompt(explanation, batch)
         if self.log_prob:
             self.generation_kwargs["logprobs"] = True
@@ -131,7 +125,6 @@ class Classifier(Scorer):
     def _parse(self, string, logprobs=None):
         pattern = r"\[.*?\]"
         match = re.search(pattern, string)
-        print("Yo", string)
 
         import traceback
         try:

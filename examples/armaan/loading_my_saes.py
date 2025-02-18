@@ -1,5 +1,6 @@
 # %%
 from nnsight import LanguageModel
+import torch
 
 model_orig = LanguageModel("gpt2", device_map="cuda", dispatch=True)
 # Later tokenization functions will assume that EOS token != PAD token
@@ -20,7 +21,7 @@ import mlsae.model.model
 importlib.reload(mlsae.model.model)
 from mlsae.model import DeepSAE
 
-arch_name = "0-0"
+arch_name = "2-2"
 arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",
@@ -82,8 +83,8 @@ from mlsae.data import stream_training_chunks
 
 iterator = stream_training_chunks()
 
+
 # %%
-import torch
 
 MAX_TOKENS = 1_000_000
 chunks = []
@@ -290,10 +291,13 @@ asyncio.run(pipeline.run(number_of_parallel_latents)) # This will start generati
 # %%
 
 experiment_cfg = ExperimentConfig(
-    n_examples_test=1, # Number of examples to sample for testing
-    n_quantiles=1, # Number of quantiles to sample
+    n_examples_test=10, # Number of examples to sample for testing
+    n_random=10,
+    n_quantiles=4, # Number of quantiles to sample
     example_ctx_len=64, # Length of each example
-    test_type="top", # Type of sampler to use for testing. 
+    test_type="quantiles", # Type of sampler to use for testing. 
+
+    n_examples_train=0,
 )
 constructor=partial(
             default_constructor,
@@ -310,7 +314,6 @@ loader = FeatureLoader(dataset, constructor=constructor, sampler=sampler)
 
 # Load the explanations already generated
 explainer_pipe = partial(explanation_loader, explanation_dir=EXPLANATION_DIR)
-
 
 # Builds the record from result returned by the pipeline
 def scorer_preprocess(result):
@@ -343,7 +346,7 @@ pipeline = Pipeline(
     explainer_pipe,
     scorer_pipe,
 )
-number_of_parallel_latents = 1
+number_of_parallel_latents = 20
 asyncio.run(pipeline.run(number_of_parallel_latents))
 
 # %%

@@ -27,7 +27,7 @@ dependencies = [
     "sentence_transformers",
     "pip>=25.0.1",
     "ipykernel>=6.29.5",
-    "mlsae@git+https://github.com/armaan-abraham/mlsae@d697498",
+    "mlsae@git+https://github.com/armaan-abraham/mlsae@265e816",
     "ipywidgets>=8.1.5",
 ]
 

@@ -28,7 +28,11 @@ dependencies = [
     "pip>=24.3.1",
     "ipykernel>=6.29.5",
     "mlsae@git+https://github.com/armaan-abraham/mlsae",
+    "armaan@git+https://github.com/armaan-abraham/tools.git",
     "ipywidgets>=8.1.5",
+    "seaborn>=0.13.2",
+    "pandas>=2.2.3",
+    "statannotations>=0.7.1",
 ]
 
 [tool.pyright]

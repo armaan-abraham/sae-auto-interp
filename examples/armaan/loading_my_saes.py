@@ -21,7 +21,7 @@ import mlsae.model.model
 importlib.reload(mlsae.model.model)
 from mlsae.model import DeepSAE
 
-arch_name = "0-0"
+arch_name = "2-2"
 arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",
@@ -69,7 +69,7 @@ from sae_auto_interp.utils import load_tokenized_data
 cfg = CacheConfig(
     dataset_repo="allenai/c4",
     dataset_split="train",
-    batch_size=8,
+    batch_size=16,
     ctx_len=64,
     n_tokens=1_000_000,
     n_splits=5,
@@ -107,19 +107,6 @@ torch.save(tokens, f"tokens.pt")
 
 tokens = torch.load("tokens.pt")
 
-# %%
-
-tokens_2 = load_tokenized_data(
-    ctx_len=cfg.ctx_len,
-    tokenizer=model_orig.tokenizer,
-    dataset_repo=cfg.dataset_repo,
-    dataset_split=cfg.dataset_split,
-    dataset_row="text",
-)
-
-# %%
-
-print(tokens_2.shape)
 
 # %%
 
@@ -147,23 +134,6 @@ cache.save_splits(
 )
 
 # %%
-arch_name = "2-2"
-import shutil
-# Name of the local folder
-folder = f"latents_{arch_name}"
-# Create a zip archive of the folder
-archive_name = f"{folder}.zip"
-shutil.make_archive(folder, 'zip', folder)
-# %%
-
-import boto3
-
-s3_client = boto3.client("s3")
-
-# %%
-s3_client.upload_file(f"{folder}.zip", "deep-sae", f"latents/{arch_name}.zip")
-
-# %%
 # The config of the cache should be saved with the results such that it can be loaded later.
 
 cache.save_config(
@@ -171,6 +141,32 @@ cache.save_config(
     cfg=cfg,
     model_name="gpt2"
 )
+
+# %%
+
+arch_name = "2-2"
+import shutil
+# Name of the local folder
+folder = f"latents_{arch_name}"
+# Create a zip archive of the folder
+archive_name = f"{folder}.zip"
+shutil.make_archive(folder, 'zip', folder)
+
+# %%
+
+import boto3
+
+s3_client = boto3.client("s3")
+
+# %%
+
+exp_name = "1"
+
+s3_client.upload_file(f"{folder}.zip", "deep-sae", f"latents/{exp_name}/{arch_name}.zip")
+
+# %%
+
+s3_client.upload_file("tokens.pt", "deep-sae", f"latents/{exp_name}/tokens.pt")
 
 # %%
 # Get dead features

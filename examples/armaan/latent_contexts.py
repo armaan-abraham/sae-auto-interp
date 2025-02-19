@@ -123,7 +123,7 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 
 # %%
-model = LanguageModel("gpt2", device_map="cuda", dispatch=True)
+model = LanguageModel("gpt2", device_map="cpu", dispatch=True)
 model.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%

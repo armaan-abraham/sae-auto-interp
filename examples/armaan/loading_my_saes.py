@@ -2,7 +2,7 @@
 from nnsight import LanguageModel
 import torch
 
-model_orig = LanguageModel("gpt2", device_map="cuda", dispatch=True)
+model_orig = LanguageModel("gpt2", device_map="cpu", dispatch=True)
 # Later tokenization functions will assume that EOS token != PAD token
 model_orig.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
@@ -22,6 +22,7 @@ importlib.reload(mlsae.model.model)
 from mlsae.model import DeepSAE
 
 arch_name = "0-0"
+exp_name = "1"
 arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",
@@ -72,7 +73,7 @@ cfg = CacheConfig(
     batch_size=8,
     ctx_len=64,
     n_tokens=1_000_000,
-    n_splits=5,
+    n_splits=10,
     dataset_row="text",
 )
 
@@ -81,10 +82,11 @@ cfg = CacheConfig(
 from mlsae.data import stream_training_chunks
 
 
-iterator = stream_training_chunks()
+iterator = stream_training_chunks(dataset_batch_size_entries=2, act_block_size_seqs=2 ** 15)
 
 
 # %%
+import torch
 
 MAX_TOKENS = 1_000_000
 chunks = []
@@ -147,21 +149,35 @@ cache.save_splits(
 )
 
 # %%
-arch_name = "2-2"
-import shutil
-# Name of the local folder
-folder = f"latents_{arch_name}"
-# Create a zip archive of the folder
-archive_name = f"{folder}.zip"
-shutil.make_archive(folder, 'zip', folder)
+def upload_latents(arch_name):
+    import shutil
+    # Name of the local folder
+    folder = f"latents_{arch_name}"
+    # Create a zip archive of the folder
+    archive_name = f"{folder}.zip"
+    shutil.make_archive(folder, 'zip', folder)
+    import boto3
+    s3_client = boto3.client("s3")
+    s3_client.upload_file(f"{folder}.zip", "deep-sae", f"latents/{exp_name}/{arch_name}.zip")
+
+def download_latents(arch_name):
+    import boto3
+    import zipfile
+    s3_client = boto3.client("s3")
+    s3_client.download_file("deep-sae", f"latents/{exp_name}/{arch_name}.zip", f"{arch_name}.zip")
+    with zipfile.ZipFile(f"{arch_name}.zip", 'r') as zip_ref:
+        zip_ref.extractall(f"latents_{arch_name}")
+
+def download_tokens():
+    import boto3
+    s3_client = boto3.client("s3")
+    s3_client.download_file("deep-sae", f"latents/{exp_name}/tokens.pt", "tokens.pt")
+
 # %%
-
-import boto3
-
-s3_client = boto3.client("s3")
+download_latents("0-0")
 
 # %%
-s3_client.upload_file(f"{folder}.zip", "deep-sae", f"latents/{arch_name}.zip")
+download_tokens()
 
 # %%
 # The config of the cache should be saved with the results such that it can be loaded later.
@@ -201,7 +217,11 @@ from pathlib import Path
 import asyncio
 import nest_asyncio
 from sae_auto_interp.explainers import explanation_loader
+import sae_auto_interp.scorers
+import sae_auto_interp.scorers.classifier
 import sae_auto_interp.scorers.classifier.classifier
+importlib.reload(sae_auto_interp.scorers)
+importlib.reload(sae_auto_interp.scorers.classifier)
 importlib.reload(sae_auto_interp.scorers.classifier.classifier)
 import sae_auto_interp.scorers.classifier.fuzz
 importlib.reload(sae_auto_interp.scorers.classifier.fuzz)
@@ -225,8 +245,6 @@ def reload_recursively(package):
 
 reload_recursively(sae_auto_interp)
 
-
-
 # %%
 
 feature_cfg = FeatureConfig(
@@ -237,17 +255,60 @@ feature_cfg = FeatureConfig(
 )
 
 # %%
-feature_dict = {submodule_path: alive_features[:100]} # What latents to explain
+# feature_dict = {submodule_path: alive_features[:100]} # What latents to explain
+num_features = 100
+feature_dict_full = {submodule_path: torch.arange(1000)} # Load more than we need because some may be dead
 # feature_dict = {submodule_path: torch.arange(10)}
+exp_dir = Path(__file__).parent.parent.parent / "data" / "latents" / exp_name
+
+tokens = torch.load(exp_dir / "tokens.pt")
+
 
 dataset = FeatureDataset(
-        raw_dir=f"latents_{arch_name}", # The folder where the cache is stored
+        raw_dir=exp_dir / f"latents_{arch_name}", # The folder where the cache is stored
+        cfg=feature_cfg,
+        modules=[submodule_path],
+        features=feature_dict_full,
+        tokenizer=model.tokenizer,
+        tokens=tokens,
+)
+
+# %%
+import re
+
+count = 0
+for buffer in dataset.buffers[0]:
+    if buffer is not None:
+        print(buffer.feature)
+        count += 1
+        assert not buffer.locations.numel() == 0, "Buffer is empty"
+        if count == num_features:
+            term_feature = int(re.split(r'feature', str(buffer.feature))[1]) + 1
+            print(term_feature)
+            break
+if count < num_features:
+    print("Not enough features")
+
+# %%
+feature_dict = {submodule_path: torch.arange(term_feature)}
+
+# Load FeatureDataset again now that we know which features are alive
+dataset = FeatureDataset(
+        raw_dir=exp_dir / f"latents_{arch_name}", # The folder where the cache is stored
         cfg=feature_cfg,
         modules=[submodule_path],
         features=feature_dict,
         tokenizer=model.tokenizer,
         tokens=tokens,
 )
+
+count = 0
+for buffer in dataset.buffers[0]:
+    if buffer is not None:
+        print(buffer.feature)
+        count += 1
+assert count == num_features
+
 
 # %%
 
@@ -276,7 +337,7 @@ client = OpenRouter("anthropic/claude-3.5-sonnet", api_key=os.environ["OPENROUTE
 # %%
 
 
-EXPLANATION_DIR = Path(os.getcwd()) / f"explanations_{arch_name}"
+EXPLANATION_DIR = Path(os.getcwd()).parent.parent / "data" / "explanations" / f"explanations_{arch_name}"
 EXPLANATION_DIR.mkdir(parents=True, exist_ok=True)
 
 # The function that saves the explanations
@@ -308,8 +369,8 @@ asyncio.run(pipeline.run(number_of_parallel_latents)) # This will start generati
 # %%
 
 experiment_cfg = ExperimentConfig(
-    n_examples_test=10, # Number of examples to sample for testing
-    n_random=10,
+    n_examples_test=20, # Number of examples to sample for testing
+    n_random=20,
     n_quantiles=4, # Number of quantiles to sample
     example_ctx_len=64, # Length of each example
     test_type="quantiles", # Type of sampler to use for testing. 
@@ -323,11 +384,10 @@ constructor=partial(
             ctx_len=experiment_cfg.example_ctx_len, 
             max_examples=feature_cfg.max_examples
         )
-sampler=partial(sample,cfg=experiment_cfg)
+sampler = partial(sample,cfg=experiment_cfg)
 loader = FeatureLoader(dataset, constructor=constructor, sampler=sampler)
 
 # %%
-
 
 # Load the explanations already generated
 explainer_pipe = partial(explanation_loader, explanation_dir=EXPLANATION_DIR)
@@ -348,7 +408,7 @@ def scorer_postprocess(result):
         f.write(orjson.dumps(result.score))
 
 scorer_pipe = process_wrapper(
-    FuzzingScorer(client, tokenizer=dataset.tokenizer),
+    FuzzingScorer(client, tokenizer=dataset.tokenizer, batch_size=1),
     preprocess=scorer_preprocess,
     postprocess=scorer_postprocess,
 )

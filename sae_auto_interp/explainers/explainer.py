@@ -25,7 +25,6 @@ class Explainer(ABC):
 
 async def explanation_loader(record: FeatureRecord, explanation_dir: str) -> ExplainerResult:
     async with aiofiles.open(f'{explanation_dir}/{record.feature}.txt', 'r') as f:
-        print("Explanation loader")
         explanation = json.loads(await f.read())
     
     return ExplainerResult(

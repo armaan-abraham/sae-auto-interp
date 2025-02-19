@@ -1,5 +1,6 @@
 # %%
 
+from pathlib import Path
 from nnsight import LanguageModel
 
 from sae_auto_interp.features import FeatureDataset, FeatureLoader
@@ -17,8 +18,11 @@ from IPython.display import clear_output
 
 module_name = "layers.9.resid_pre"
 width = 24576
-arch = "2-2"
-raw_dir = f"latents_{arch}"
+arch = "0-0"
+exp_name = "1"
+exp_dir = Path(__file__).parent.parent.parent / "data" / "latents" / exp_name
+tokens_path = exp_dir / "tokens.pt"
+latents_dir = exp_dir / f"latents_{arch}"
 
 
 
@@ -123,7 +127,7 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 
 # %%
-model = LanguageModel("gpt2", device_map="cuda", dispatch=True)
+model = LanguageModel("gpt2", device_map="cpu", dispatch=True)
 model.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%
@@ -135,11 +139,10 @@ def load_examples():
     #module = f".model.layers.{layer_name}.post_feedforward_layernorm"
     module = module_name
 
-    print(f"Raw dir: {raw_dir}")
-    tokens = torch.load("/root/sae-auto-interp/examples/armaan/tokens.pt")
+    tokens = torch.load(tokens_path)
     
     dataset = FeatureDataset(
-        raw_dir=raw_dir,
+        raw_dir=latents_dir,
         cfg=feature_cfg,
         modules=[module],
         features={module:torch.tensor(torch.arange(0, 10))},
@@ -272,8 +275,6 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
     activations = convert_token_array_to_list(activations)
     # toks = [[tokenizer.decode(t).replace('Ġ', '&nbsp').replace('\n', '↵') for t in tok] for tok in toks]
     toks = [[tokenizer.decode(t).replace('Ġ', '&nbsp').replace('\n', '\\n') for t in tok] for tok in toks]
-    print(len(activations))
-    print(len(toks))
     highlighted_text = []
     # Make background black
     # highlighted_text.append('<body style="background-color:black; color: white;">')

@@ -49,8 +49,6 @@ class FuzzingScorer(Classifier, Scorer):
         Prepare and shuffle a list of samples for classification.
         """
 
-        print("_prepare fuzz", record)
-
         import traceback
         try:
             defaults = {

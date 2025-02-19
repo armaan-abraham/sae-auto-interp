@@ -122,7 +122,6 @@ def sample(
     record: FeatureRecord,
     cfg: ExperimentConfig,
 ):
-    print("Sampler", cfg)
     examples = record.examples
     max_activation = record.max_activation
     _train = train(
@@ -136,12 +135,11 @@ def sample(
     if cfg.n_examples_test > 0: 
         _test = test(
             examples,
-        max_activation,
-        cfg.n_examples_test,
+            max_activation,
+            cfg.n_examples_test,
             cfg.n_quantiles,
             cfg.test_type,   
         )
-        print("Test", len(_test), len(_test[0]))
         record.test = _test
 
     

@@ -7,26 +7,26 @@ import seaborn as sns
 import pandas as pd
 
 path_here = Path(os.getcwd())
+exp_name = "1"
+exp_type = "detection"
 
 def load_scores(arch_name):
-    scores_dir = path_here / "data" / f"scores_{arch_name}"
+    scores_dir = path_here.parent.parent / "data" / "scores" / exp_name / exp_type / f"scores_{arch_name}"
 
     txt_files = sorted(list(scores_dir.glob("*.txt")), key=lambda x: int(x.stem.split("feature")[-1]))
 
     all_correctness = []
+    num_invalid = 0
 
     print(f"Arch: {arch_name}")
     for txt_file in txt_files:
         with open(txt_file, "r") as f:
             scores = orjson.loads(f.read())
         
-        for score in scores:
-            print(score.get("ground_truth"))
-        
-        print(len(scores))
-        
+        invalid = len([score for score in scores if score["prediction"] == -1])
+        num_invalid += invalid
+        print(f"Number invalid: {invalid}")
         scores = [score for score in scores if score["prediction"] != -1]
-        print(len(scores))
         if not scores:
             continue
 
@@ -34,6 +34,8 @@ def load_scores(arch_name):
 
     all_correctness = np.array(all_correctness, dtype=float)
 
+    print(f"Percentage invalid: {num_invalid / (num_invalid + len(all_correctness))}")
+    print(f"Total: {num_invalid + len(all_correctness)}")
 
     return all_correctness
 
@@ -56,22 +58,20 @@ print(len(df_sub))
 
 # %%
 from armaan.palette import palette
-# %%
 from matplotlib import pyplot as plt
 from statannotations.Annotator import Annotator
 
 plt.figure(figsize=(6, 5))
-ax = sns.barplot(data=df, x="arch", y="correctness", palette=[palette[0], palette[2], palette[4]], order=["0-0", "2-2"])
-ax.set_title("Detection accuracy")
+ax = sns.barplot(data=df, x="arch", y="correctness", palette=[palette[0], palette[3]], order=["0-0", "2-2"])
+ax.set_title(f"{exp_type.capitalize()} accuracy")
 ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"])
 ax.set_ylabel("Accuracy")
 ax.set_xlabel(None)
 ax.axhline(y=0.5, color='red', linestyle='--', alpha=0.8, linewidth=1)
+
 # Add value labels on top of each bar
 for i in ax.containers:
     ax.bar_label(i, fmt='%.3f', padding=3)
-
-
 
 pairs = [("2-2", "0-0")]
 annotator = Annotator(
@@ -88,6 +88,8 @@ annotator.configure(
     hide_non_significant=True,
 )
 annotator.apply_and_annotate()
-plt.savefig(path_here / "detection_accuracy.png", dpi=300)
+plt.savefig(path_here / f"{exp_type}_accuracy.png", dpi=300)
+
+# %%
 
 # %%

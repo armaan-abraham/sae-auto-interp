@@ -60,8 +60,6 @@ Text examples:
 Example 0: climate, TomblinâĢĻs Chief<< of>> Staff Charlie Lorensen said.Ċ
 Example 1: no wonderworking relics, no true Body and Blood<< of>> Christ, no true Baptism
 Example 2:ĊĊDeborah Sathe, Head<< of>> Talent Development and Production at Film London,
-Example 3:ĊĊIt has been devised by Director<< of>> Public Prosecutions (DPP)
-Example 4: and fair investigation not even include the Director<< of>> Athletics? Â· Finally, we believe the
 """
 
 # DSCORER_RESPONSE_THREE = """{
@@ -72,7 +70,16 @@ Example 4: and fair investigation not even include the Director<< of>> Athletics
 #   "example_4": 1
 # }"""
 
-DSCORER_RESPONSE_THREE = "[1,1,1,1,1]"
+DSCORER_RESPONSE_THREE = "[1,1,1]"
+
+DSCORER_EXAMPLE_FOUR = """Feature explanation: adjectives that describe a person's appearance.
+
+Text examples:
+
+Example 0: Esmeralda was a << beautiful>> woman.
+"""
+
+DSCORER_RESPONSE_FOUR = "[1]"
 
 GENERATION_PROMPT = """Feature explanation: {explanation}
 
@@ -94,6 +101,8 @@ def prompt(examples, explanation):
         {"role": "assistant", "content": DSCORER_RESPONSE_TWO},
         {"role": "user", "content": DSCORER_EXAMPLE_THREE},
         {"role": "assistant", "content": DSCORER_RESPONSE_THREE},
+        {"role": "user", "content": DSCORER_EXAMPLE_FOUR},
+        {"role": "assistant", "content": DSCORER_RESPONSE_FOUR},
     ]
 
     prompt = [

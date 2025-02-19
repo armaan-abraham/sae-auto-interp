@@ -114,12 +114,15 @@ def test(
                 for example in quantile:
                     example.normalized_activations = (example.activations * 10 / max_activation).floor()
             return selected_examples
+        case _:
+            raise ValueError(f"Unknown test_type: {test_type}. Must be one of ['quantiles', 'activation']")
 
 
 def sample(
     record: FeatureRecord,
     cfg: ExperimentConfig,
 ):
+    print("Sampler", cfg)
     examples = record.examples
     max_activation = record.max_activation
     _train = train(
@@ -138,6 +141,7 @@ def sample(
             cfg.n_quantiles,
             cfg.test_type,   
         )
+        print("Test", len(_test), len(_test[0]))
         record.test = _test
 
     

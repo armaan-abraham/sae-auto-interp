@@ -117,6 +117,7 @@ class FeatureDataset:
         features: Optional[Dict[str, Union[int, torch.Tensor]]] = None,
         # Add tokenizer argument due to bug in load_tokenizer
         tokenizer: Optional[Callable] = None,
+        tokens: Optional[TensorType["batch", "sequence"]] = None,
     ):
         """
         Initialize a FeatureDataset.
@@ -142,14 +143,16 @@ class FeatureDataset:
             self.tokenizer = load_tokenizer(cache_config["model_name"])
         else:
             self.tokenizer = tokenizer
-        self.tokens = load_tokenized_data(
-            cache_config["ctx_len"],
-            self.tokenizer,
-            cache_config["dataset_repo"],
-            cache_config["dataset_split"],
-            cache_config["dataset_name"],
-            cache_config["dataset_row"],
-        )
+        if tokens is None:
+            tokens = load_tokenized_data(
+                cache_config["ctx_len"],
+                self.tokenizer,
+                cache_config["dataset_repo"],
+                cache_config["dataset_split"],
+                cache_config["dataset_name"],
+                cache_config["dataset_row"],
+            )
+        self.tokens = tokens
    
     def _edges(self):
         """Generate edge indices for feature splits."""

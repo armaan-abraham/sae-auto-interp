@@ -15,9 +15,10 @@ import json
 import ipywidgets as widgets
 from IPython.display import clear_output
 
-module_name = "layers.6.resid_pre"
-width = 256
-raw_dir = f"latents_14"
+module_name = "layers.9.resid_pre"
+width = 24576
+arch = "2-2"
+raw_dir = f"latents_{arch}"
 
 
 
@@ -122,32 +123,34 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 
 # %%
-model = LanguageModel("roneneldan/TinyStories-3M", device_map="cuda", dispatch=True)
+model = LanguageModel("gpt2", device_map="cuda", dispatch=True)
 model.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 # %%
 def load_examples():
     
     feature_cfg = FeatureConfig(width=width)
-    experiment_cfg = ExperimentConfig(n_random=0,train_type="top",n_examples_train=15,n_quantiles=3,example_ctx_len=32)
+    experiment_cfg = ExperimentConfig(n_random=0,train_type="quantiles",n_examples_train=50,example_ctx_len=64)
 
     #module = f".model.layers.{layer_name}.post_feedforward_layernorm"
     module = module_name
 
     print(f"Raw dir: {raw_dir}")
+    tokens = torch.load("/root/sae-auto-interp/examples/armaan/tokens.pt")
     
     dataset = FeatureDataset(
         raw_dir=raw_dir,
         cfg=feature_cfg,
         modules=[module],
-        features={module:torch.tensor(torch.arange(0, 40))},
+        features={module:torch.tensor(torch.arange(0, 10))},
         tokenizer=model.tokenizer,
+        tokens=tokens,
     )
     constructor=partial(
                 default_constructor,
                 tokens=dataset.tokens,
                 n_random=experiment_cfg.n_random, 
-                ctx_len=32, 
+                ctx_len=64, 
                 max_examples=10000
             )
     sampler = partial(sample,cfg=experiment_cfg)
@@ -313,3 +316,5 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
 
 # %%
 plot_examples()
+
+# %%

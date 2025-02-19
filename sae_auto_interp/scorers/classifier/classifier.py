@@ -13,6 +13,7 @@ from ...logger import logger
 from ..scorer import Scorer, ScorerResult
 from .sample import ClassifierOutput, Sample
 
+print("2222")
 
 class Classifier(Scorer):
     def __init__(
@@ -31,6 +32,7 @@ class Classifier(Scorer):
         self.batch_size = batch_size
         self.generation_kwargs = generation_kwargs
         self.log_prob = log_prob
+        print("3333")
 
 
 
@@ -80,7 +82,6 @@ class Classifier(Scorer):
         """
         Generate predictions for a batch of samples.
         """
-
         prompt = self._build_prompt(explanation, batch)
         if self.log_prob:
             self.generation_kwargs["logprobs"] = True
@@ -125,6 +126,7 @@ class Classifier(Scorer):
         pattern = r"\[.*?\]"
         match = re.search(pattern, string)
 
+        import traceback
         try:
             array = json.loads(match.group(0))
             assert len(array) == self.batch_size
@@ -135,6 +137,7 @@ class Classifier(Scorer):
             probabilities = None
             return array, probabilities
         except (json.JSONDecodeError, AssertionError, AttributeError) as e:
+            traceback.print_exc()
             logger.error(f"Parsing array failed: {e}")
             if self.log_prob:
                 return [-1] * self.batch_size, [-1] * self.batch_size

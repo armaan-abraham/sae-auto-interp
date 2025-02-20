@@ -33,6 +33,7 @@ class Classifier(Scorer):
         self.log_prob = log_prob
 
 
+
     async def __call__(
         self,
         record: FeatureRecord,
@@ -69,7 +70,6 @@ class Classifier(Scorer):
     
         tasks = [asyncio.create_task(_process(explanation, batch)) for batch in batches]
         results = await asyncio.gather(*tasks)
-        print("Length of results", len(results))
 
         return sum(results, [])
     
@@ -80,6 +80,7 @@ class Classifier(Scorer):
         """
         Generate predictions for a batch of samples.
         """
+
         prompt = self._build_prompt(explanation, batch)
         if self.log_prob:
             self.generation_kwargs["logprobs"] = True
@@ -126,7 +127,7 @@ class Classifier(Scorer):
 
         try:
             array = json.loads(match.group(0))
-            assert len(array) == self.batch_size, f"Length of array {len(array)} does not match batch size {self.batch_size}"
+            assert len(array) == self.batch_size
             if self.log_prob:
                 probabilities = self._parse_logprobs(logprobs)
                 assert len(probabilities) == self.batch_size

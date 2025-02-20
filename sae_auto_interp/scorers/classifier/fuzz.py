@@ -49,42 +49,36 @@ class FuzzingScorer(Classifier, Scorer):
         Prepare and shuffle a list of samples for classification.
         """
 
-        import traceback
-        try:
-            defaults = {
-                "highlighted": True,
-                "tokenizer": self.tokenizer,
-            }
-            all_examples = []
-            for test in record.test:
-                all_examples.extend(test)
-            n_incorrect = self.average_n_activations(all_examples)
-            samples = examples_to_samples(
-                record.extra_examples,
-                distance=-1,
-                ground_truth=False,
-                n_incorrect=n_incorrect,
-                **defaults,
-            )
+        defaults = {
+            "highlighted": True,
+            "tokenizer": self.tokenizer,
+        }
+        all_examples = []
+        for test in record.test:
+            all_examples.extend(test)
+        n_incorrect = self.average_n_activations(all_examples)
+        samples = examples_to_samples(
+            record.extra_examples,
+            distance=-1,
+            ground_truth=False,
+            n_incorrect=n_incorrect,
+            **defaults,
+        )
 
-            assert (
-                len(record.test) > 0 
-                and len(record.test[0]) > 0
-            ), "No test records found"
+        assert (
+            len(record.test) > 0 
+            and len(record.test[0]) > 0
+        ), "No test records found"
 
-            for i, examples in enumerate(record.test):
-                samples.extend(
-                    examples_to_samples(
-                        examples,
-                        distance=i + 1,
-                        ground_truth=True,
-                        n_incorrect=0,
-                        **defaults,
-                    )
+        for i, examples in enumerate(record.test):
+            samples.extend(
+                examples_to_samples(
+                    examples,
+                    distance=i + 1,
+                    ground_truth=True,
+                    n_incorrect=0,
+                    **defaults,
                 )
-        except Exception as e:
-            traceback.print_exc()
-            print(e)
-            raise e
+            )
 
         return samples

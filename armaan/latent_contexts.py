@@ -16,10 +16,10 @@ import json
 import ipywidgets as widgets
 from IPython.display import clear_output
 from transformers import AutoTokenizer
-from utils import load_sae_config, cfg, data_dir, latents_dir, alive_features_dir
+from utils import load_sae_config, cfg, data_dir, latents_dir, alive_features_dir, load_feature_config
 
 module_name = cfg.submodule_path
-arch_name = "0-0"
+arch_name = "2-2"
 width = load_sae_config(arch_name)["width"]
 tokens_path = data_dir / "tokens.pt"
 this_latents_dir = latents_dir / arch_name
@@ -29,7 +29,6 @@ tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 
 # %%
-
 
 def make_colorbar(
     min_value,
@@ -161,10 +160,8 @@ def tokens_and_activations_to_html(
     highlighted_text = "".join(highlighted_text)
     return highlighted_text
 
-
-# %%
 def load_examples():
-    feature_cfg = FeatureConfig(width=width)
+    feature_cfg = load_feature_config(arch_name)
     experiment_cfg = ExperimentConfig(
         n_random=0, train_type="quantiles", n_examples_train=50, example_ctx_len=64
     )
@@ -257,10 +254,6 @@ def plot_examples():
     save_button.on_click(on_save)
     display(widgets.HBox([text_box, submit_button, skip_button, save_button]))
     display_example(current_index[0])
-
-
-# %%
-
 
 def make_colorbar(
     min_value,
@@ -393,5 +386,3 @@ def tokens_and_activations_to_html(
 
 # %%
 plot_examples()
-
-# %%

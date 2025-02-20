@@ -10,22 +10,18 @@
 #   universal: false
 
 -e file:.
-accelerate==1.3.0
+accelerate==1.4.0
     # via nnsight
     # via sae
     # via transformer-lens
 aiofiles==24.1.0
     # via sae-auto-interp
-aiohappyeyeballs==2.4.4
+aiohappyeyeballs==2.4.6
     # via aiohttp
-aiohttp==3.11.11
-    # via aiohttp-cors
+aiohttp==3.11.12
     # via datasets
     # via fsspec
-    # via ray
     # via vllm
-aiohttp-cors==0.7.0
-    # via ray
 aiosignal==1.3.2
     # via aiohttp
     # via ray
@@ -38,8 +34,6 @@ anyio==4.8.0
     # via openai
     # via starlette
     # via watchfiles
-appnope==0.1.4
-    # via ipykernel
 armaan @ git+https://github.com/armaan-abraham/tools.git@d0ec1051fb3adb45896554fbcb134743b1904db0
     # via sae-auto-interp
 astor==0.8.1
@@ -48,11 +42,11 @@ asttokens==3.0.0
     # via stack-data
 async-timeout==5.0.1
     # via aiohttp
-attrs==24.3.0
+attrs==25.1.0
     # via aiohttp
     # via jsonschema
     # via referencing
-awscli==1.37.2
+awscli==1.37.24
     # via mlsae
 beartype==0.14.1
     # via transformer-lens
@@ -60,23 +54,21 @@ better-abc==0.0.3
     # via transformer-lens
 bidict==0.23.1
     # via python-socketio
-bitsandbytes==0.42.0
+bitsandbytes==0.45.2
     # via sae-auto-interp
-blake3==1.0.2
+blake3==1.0.4
     # via vllm
 blinker==1.9.0
     # via flask
 blobfile==3.0.0
     # via sae-auto-interp
-boto3==1.36.2
+boto3==1.36.24
     # via mlsae
-botocore==1.36.2
+botocore==1.36.24
     # via awscli
     # via boto3
     # via s3transfer
-cachetools==5.5.0
-    # via google-auth
-certifi==2024.12.14
+certifi==2025.1.31
     # via httpcore
     # via httpx
     # via requests
@@ -86,6 +78,8 @@ charset-normalizer==3.4.1
 click==8.1.8
     # via flask
     # via ray
+    # via rich-toolkit
+    # via typer
     # via uvicorn
     # via wandb
 cloudpickle==3.1.1
@@ -93,18 +87,18 @@ cloudpickle==3.1.1
     # via vllm
 colorama==0.4.6
     # via awscli
-colorful==0.5.6
-    # via ray
 comm==0.2.2
     # via ipykernel
     # via ipywidgets
-compressed-tensors==0.8.1
+compressed-tensors==0.9.1
     # via vllm
 contourpy==1.3.1
     # via matplotlib
+cupy-cuda12x==13.3.0
+    # via ray
 cycler==0.12.1
     # via matplotlib
-datasets==3.2.0
+datasets==3.3.2
     # via mlsae
     # via sae
     # via sae-auto-interp
@@ -123,33 +117,39 @@ dill==0.3.8
     # via multiprocess
 diskcache==5.6.3
     # via outlines
-distlib==0.3.9
-    # via virtualenv
 distro==1.9.0
     # via openai
+dnspython==2.7.0
+    # via email-validator
 docker-pycreds==0.4.0
     # via wandb
 docstring-parser==0.16
     # via simple-parsing
 docutils==0.16
     # via awscli
-einops==0.8.0
+einops==0.8.1
     # via mlsae
     # via nnsight
     # via sae
     # via transformer-lens
     # via vllm
+email-validator==2.2.0
+    # via fastapi
 exceptiongroup==1.2.2
     # via anyio
     # via ipython
     # via pytest
-executing==2.1.0
+executing==2.2.0
     # via stack-data
 fancy-einsum==0.0.3
     # via transformer-lens
-fastapi==0.115.6
+fastapi==0.115.8
     # via vllm
-filelock==3.16.1
+fastapi-cli==0.0.7
+    # via fastapi
+fastrlock==0.8.3
+    # via cupy-cuda12x
+filelock==3.17.0
     # via blobfile
     # via datasets
     # via diffusers
@@ -157,19 +157,19 @@ filelock==3.16.1
     # via ray
     # via torch
     # via transformers
-    # via virtualenv
+    # via triton
     # via vllm
 fire==0.7.0
     # via sae-auto-interp
 flask==3.1.0
     # via sae-auto-interp
-fonttools==4.55.4
+fonttools==4.56.0
     # via matplotlib
 frozenlist==1.5.0
     # via aiohttp
     # via aiosignal
     # via ray
-fsspec==2024.9.0
+fsspec==2024.12.0
     # via datasets
     # via huggingface-hub
     # via torch
@@ -179,14 +179,6 @@ gitdb==4.0.12
     # via gitpython
 gitpython==3.1.44
     # via wandb
-google-api-core==2.24.0
-    # via opencensus
-google-auth==2.37.0
-    # via google-api-core
-googleapis-common-protos==1.66.0
-    # via google-api-core
-grpcio==1.69.0
-    # via ray
 h11==0.14.0
     # via httpcore
     # via uvicorn
@@ -196,8 +188,9 @@ httpcore==1.0.7
 httptools==0.6.4
     # via uvicorn
 httpx==0.28.1
+    # via fastapi
     # via openai
-huggingface-hub==0.27.1
+huggingface-hub==0.29.1
     # via accelerate
     # via datasets
     # via diffusers
@@ -207,10 +200,11 @@ huggingface-hub==0.27.1
     # via transformers
 idna==3.10
     # via anyio
+    # via email-validator
     # via httpx
     # via requests
     # via yarl
-importlib-metadata==8.5.0
+importlib-metadata==8.6.1
     # via diffusers
     # via vllm
 iniconfig==2.0.0
@@ -222,20 +216,21 @@ interegular==0.3.3
 ipykernel==6.29.5
     # via mlsae
     # via sae-auto-interp
-ipython==8.31.0
+ipython==8.32.0
     # via ipykernel
     # via ipywidgets
+    # via nnsight
 ipywidgets==8.1.5
     # via sae-auto-interp
 itsdangerous==2.2.0
     # via flask
-jaxtyping==0.2.36
+jaxtyping==0.2.38
     # via transformer-lens
 jedi==0.19.2
     # via ipython
 jinja2==3.1.5
+    # via fastapi
     # via flask
-    # via memray
     # via outlines
     # via torch
 jiter==0.8.2
@@ -264,16 +259,14 @@ kiwisolver==1.4.8
 lark==1.2.2
     # via outlines
     # via vllm
-linkify-it-py==2.0.3
-    # via markdown-it-py
-lm-format-enforcer==0.10.9
+llvmlite==0.43.0
+    # via numba
+lm-format-enforcer==0.10.10
     # via vllm
-lxml==5.3.0
+lxml==5.3.1
     # via blobfile
 markdown-it-py==3.0.0
-    # via mdit-py-plugins
     # via rich
-    # via textual
 markupsafe==3.0.2
     # via jinja2
     # via werkzeug
@@ -284,21 +277,18 @@ matplotlib==3.10.0
 matplotlib-inline==0.1.7
     # via ipykernel
     # via ipython
-mdit-py-plugins==0.4.2
-    # via markdown-it-py
 mdurl==0.1.2
     # via markdown-it-py
-memray==1.15.0
-    # via ray
-mistral-common==1.5.1
+mistral-common==1.5.3
     # via vllm
-mlsae @ git+https://github.com/armaan-abraham/mlsae@265e816bf70124b6d7c0a475c074e2d81f9e19e5
+mlsae @ git+https://github.com/armaan-abraham/mlsae@f814b288b7041c334f083615ab8ec388681be9e7
     # via sae-auto-interp
 mpmath==1.3.0
     # via sympy
 msgpack==1.1.0
     # via ray
 msgspec==0.19.0
+    # via nnsight
     # via vllm
 multidict==6.1.0
     # via aiohttp
@@ -312,16 +302,21 @@ nest-asyncio==1.6.0
     # via outlines
 networkx==3.4.2
     # via torch
-nnsight==0.3.7
+nnsight==0.4.3
     # via sae-auto-interp
+numba==0.60.0
+    # via vllm
 numpy==1.26.4
     # via accelerate
+    # via bitsandbytes
     # via contourpy
+    # via cupy-cuda12x
     # via datasets
     # via diffusers
     # via gguf
     # via matplotlib
     # via mistral-common
+    # via numba
     # via opencv-python-headless
     # via outlines
     # via pandas
@@ -333,14 +328,38 @@ numpy==1.26.4
     # via transformer-lens
     # via transformers
     # via vllm
-nvidia-ml-py==12.560.30
+    # via xformers
+nvidia-cublas-cu12==12.4.5.8
+    # via nvidia-cudnn-cu12
+    # via nvidia-cusolver-cu12
+    # via torch
+nvidia-cuda-cupti-cu12==12.4.127
+    # via torch
+nvidia-cuda-nvrtc-cu12==12.4.127
+    # via torch
+nvidia-cuda-runtime-cu12==12.4.127
+    # via torch
+nvidia-cudnn-cu12==9.1.0.70
+    # via torch
+nvidia-cufft-cu12==11.2.1.3
+    # via torch
+nvidia-curand-cu12==10.3.5.147
+    # via torch
+nvidia-cusolver-cu12==11.6.1.9
+    # via torch
+nvidia-cusparse-cu12==12.3.1.170
+    # via nvidia-cusolver-cu12
+    # via torch
+nvidia-nccl-cu12==2.21.5
+    # via torch
+nvidia-nvjitlink-cu12==12.4.127
+    # via nvidia-cusolver-cu12
+    # via nvidia-cusparse-cu12
+    # via torch
+nvidia-nvtx-cu12==12.4.127
+    # via torch
+openai==1.63.2
     # via vllm
-openai==1.59.8
-    # via vllm
-opencensus==0.11.4
-    # via ray
-opencensus-context==0.1.3
-    # via opencensus
 opencv-python-headless==4.11.0.86
     # via mistral-common
 orjson==3.10.15
@@ -374,7 +393,7 @@ petname==2.6
     # via mlsae
 pexpect==4.9.0
     # via ipython
-pillow==10.4.0
+pillow==11.1.0
     # via diffusers
     # via matplotlib
     # via mistral-common
@@ -385,33 +404,25 @@ pip==25.0.1
     # via sae-auto-interp
 platformdirs==4.3.6
     # via jupyter-core
-    # via textual
-    # via virtualenv
     # via wandb
 pluggy==1.5.0
     # via pytest
 prometheus-client==0.21.1
     # via prometheus-fastapi-instrumentator
-    # via ray
     # via vllm
 prometheus-fastapi-instrumentator==7.0.2
     # via vllm
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
     # via ipython
 propcache==0.2.1
     # via aiohttp
     # via yarl
-proto-plus==1.25.0
-    # via google-api-core
 protobuf==5.29.3
-    # via google-api-core
-    # via googleapis-common-protos
     # via nnsight
-    # via proto-plus
     # via ray
     # via vllm
     # via wandb
-psutil==6.1.1
+psutil==7.0.0
     # via accelerate
     # via ipykernel
     # via vllm
@@ -422,20 +433,17 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via vllm
-py-spy==0.4.0
-    # via ray
-pyarrow==19.0.0
+pyarrow==19.0.1
     # via datasets
 pyasn1==0.6.1
-    # via pyasn1-modules
     # via rsa
-pyasn1-modules==0.4.1
-    # via google-auth
+pybind11==2.13.6
+    # via xgrammar
 pycountry==24.6.1
     # via outlines
 pycryptodomex==3.21.0
     # via blobfile
-pydantic==2.10.5
+pydantic==2.10.6
     # via compressed-tensors
     # via fastapi
     # via lm-format-enforcer
@@ -443,9 +451,9 @@ pydantic==2.10.5
     # via nnsight
     # via openai
     # via outlines
-    # via ray
     # via vllm
     # via wandb
+    # via xgrammar
 pydantic-core==2.27.2
     # via pydantic
 pygments==2.19.1
@@ -455,6 +463,7 @@ pyparsing==3.2.1
     # via matplotlib
 pytest==8.3.4
     # via mlsae
+    # via xgrammar
 python-dateutil==2.9.0.post0
     # via botocore
     # via jupyter-client
@@ -464,9 +473,11 @@ python-dotenv==1.0.1
     # via uvicorn
 python-engineio==4.11.2
     # via python-socketio
+python-multipart==0.0.20
+    # via fastapi
 python-socketio==5.12.1
     # via nnsight
-pytz==2024.2
+pytz==2025.1
     # via pandas
 pyyaml==6.0.2
     # via accelerate
@@ -480,13 +491,13 @@ pyyaml==6.0.2
     # via uvicorn
     # via vllm
     # via wandb
-pyzmq==26.2.0
+pyzmq==26.2.1
     # via ipykernel
     # via jupyter-client
     # via vllm
 ray==2.40.0
     # via vllm
-referencing==0.36.1
+referencing==0.36.2
     # via jsonschema
     # via jsonschema-specifications
     # via outlines
@@ -497,7 +508,6 @@ regex==2024.11.6
 requests==2.32.3
     # via datasets
     # via diffusers
-    # via google-api-core
     # via huggingface-hub
     # via mistral-common
     # via outlines
@@ -508,16 +518,17 @@ requests==2.32.3
     # via vllm
     # via wandb
 rich==13.9.4
-    # via memray
-    # via textual
+    # via rich-toolkit
     # via transformer-lens
-rpds-py==0.22.3
+    # via typer
+rich-toolkit==0.13.2
+    # via fastapi-cli
+rpds-py==0.23.0
     # via jsonschema
     # via referencing
 rsa==4.7.2
     # via awscli
-    # via google-auth
-s3transfer==0.11.1
+s3transfer==0.11.2
     # via awscli
     # via boto3
 sae @ git+https://github.com/EleutherAI/sae@4c73890dfe94529037fa5d0f2592124f80f41f56
@@ -530,8 +541,7 @@ safetensors==0.5.2
     # via transformers
 scikit-learn==1.6.1
     # via sentence-transformers
-scipy==1.15.1
-    # via bitsandbytes
+scipy==1.15.2
     # via scikit-learn
     # via sentence-transformers
     # via statannotations
@@ -539,30 +549,30 @@ seaborn==0.13.2
     # via mlsae
     # via sae-auto-interp
     # via statannotations
-sentence-transformers==3.3.1
+sentence-transformers==3.4.1
     # via sae-auto-interp
 sentencepiece==0.2.0
     # via mistral-common
     # via nnsight
     # via transformer-lens
     # via vllm
-sentry-sdk==2.20.0
+    # via xgrammar
+sentry-sdk==2.22.0
     # via wandb
 setproctitle==1.3.4
     # via wandb
 setuptools==75.8.0
     # via wandb
-simple-parsing==0.1.6
+shellingham==1.5.4
+    # via typer
+simple-parsing==0.1.7
     # via sae
     # via sae-auto-interp
 simple-websocket==1.1.0
     # via python-engineio
 six==1.17.0
     # via docker-pycreds
-    # via opencensus
     # via python-dateutil
-smart-open==7.1.0
-    # via ray
 smmap==5.0.2
     # via gitdb
 sniffio==1.3.1
@@ -570,7 +580,7 @@ sniffio==1.3.1
     # via openai
 stack-data==0.6.3
     # via ipython
-starlette==0.41.3
+starlette==0.45.3
     # via fastapi
     # via prometheus-fastapi-instrumentator
 statannotations==0.7.1
@@ -579,30 +589,37 @@ sympy==1.13.1
     # via torch
 termcolor==2.5.0
     # via fire
-textual==1.0.0
-    # via memray
 threadpoolctl==3.5.0
     # via scikit-learn
-tiktoken==0.7.0
+tiktoken==0.9.0
     # via mistral-common
     # via vllm
+    # via xgrammar
 tokenizers==0.21.0
     # via nnsight
     # via transformers
     # via vllm
+toml==0.10.2
+    # via nnsight
 tomli==2.2.1
     # via pytest
 torch==2.5.1
     # via accelerate
+    # via bitsandbytes
     # via compressed-tensors
     # via mlsae
     # via nnsight
     # via outlines
     # via sae
     # via sentence-transformers
+    # via torchaudio
     # via torchtyping
     # via torchvision
     # via transformer-lens
+    # via vllm
+    # via xformers
+    # via xgrammar
+torchaudio==2.5.1
     # via vllm
 torchtyping==0.1.5
     # via sae-auto-interp
@@ -634,15 +651,20 @@ traitlets==5.14.3
 transformer-lens==2.9.0
     # via mlsae
     # via sae-auto-interp
-transformers==4.48.0
+transformers==4.49.0
     # via compressed-tensors
     # via nnsight
     # via sae
     # via sentence-transformers
     # via transformer-lens
     # via vllm
+    # via xgrammar
+triton==3.1.0
+    # via torch
 typeguard==2.13.3
     # via torchtyping
+typer==0.15.1
+    # via fastapi-cli
 typing-extensions==4.12.2
     # via anyio
     # via fastapi
@@ -656,31 +678,31 @@ typing-extensions==4.12.2
     # via pydantic-core
     # via referencing
     # via rich
+    # via rich-toolkit
     # via simple-parsing
-    # via textual
     # via torch
     # via transformer-lens
+    # via typer
     # via uvicorn
     # via vllm
     # via wandb
-tzdata==2024.2
+tzdata==2025.1
     # via pandas
-uc-micro-py==1.0.3
-    # via linkify-it-py
 urllib3==2.3.0
     # via blobfile
     # via botocore
     # via requests
     # via sentry-sdk
 uvicorn==0.34.0
-    # via vllm
+    # via fastapi
+    # via fastapi-cli
 uvloop==0.21.0
     # via uvicorn
-virtualenv==20.29.1
-    # via ray
-vllm==0.6.6.post1
+vllm==0.7.3
     # via sae-auto-interp
-wandb==0.19.4
+wadler-lindig==0.1.3
+    # via jaxtyping
+wandb==0.19.6
     # via mlsae
     # via transformer-lens
 watchfiles==1.0.4
@@ -689,16 +711,18 @@ wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.8.0
     # via python-socketio
-websockets==14.2
+websockets==15.0
     # via uvicorn
 werkzeug==3.1.3
     # via flask
 widgetsnbextension==4.0.13
     # via ipywidgets
-wrapt==1.17.2
-    # via smart-open
 wsproto==1.2.0
     # via simple-websocket
+xformers==0.0.28.post3
+    # via vllm
+xgrammar==0.1.11
+    # via vllm
 xxhash==3.5.0
     # via datasets
 yarl==1.18.3

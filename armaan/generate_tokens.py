@@ -20,8 +20,7 @@ def generate_tokens():
         chunks.append(chunk)
         num_tokens += chunk.numel()
 
-    tokens = torch.cat(chunks).flatten()
-    tokens = tokens[:MAX_TOKENS]
+    tokens = torch.cat(chunks)
     print(f"{tokens.shape=}")
 
     data_dir.mkdir(parents=True, exist_ok=True)

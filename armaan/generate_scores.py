@@ -5,23 +5,28 @@ from sae_auto_interp.features.samplers import sample
 from sae_auto_interp.pipeline import Pipeline, process_wrapper
 import asyncio
 from sae_auto_interp.explainers import explanation_loader
-from sae_auto_interp.scorers import FuzzingScorer
+from sae_auto_interp.scorers import FuzzingScorer, DetectionScorer
 from sae_auto_interp.clients import OpenRouter
 import os
 import orjson
 from functools import partial
-from utils import load_feature_dataset, data_dir, cfg
+from utils import load_feature_dataset, data_dir, cfg, arch_name_to_id
 from generate_explanations import explanation_dir
 from sae_auto_interp.features.loader import FeatureLoader
 
 
 score_dir = data_dir / "scores"
 
+scorers = {
+    "detection": DetectionScorer,
+    "fuzz": FuzzingScorer,
+}
 
-def generate_scores(arch_name):
+
+def generate_scores(arch_name, scorer_name):
     experiment_cfg = ExperimentConfig(
-        n_examples_test=20,  # Number of examples to sample for testing
-        n_random=20,
+        n_examples_test=10,  # Number of examples to sample for testing
+        n_random=10,
         n_quantiles=4,  # Number of quantiles to sample
         example_ctx_len=64,  # Length of each example
         test_type="quantiles",  # Type of sampler to use for testing.
@@ -52,7 +57,7 @@ def generate_scores(arch_name):
         record.extra_examples = record.random_examples
         return record
 
-    this_score_dir = score_dir / arch_name
+    this_score_dir = score_dir / scorer_name / arch_name
     this_score_dir.mkdir(parents=True, exist_ok=True)
 
     # Saves the score to a file
@@ -65,7 +70,7 @@ def generate_scores(arch_name):
     )
 
     scorer_pipe = process_wrapper(
-        FuzzingScorer(client, tokenizer=dataset.tokenizer, batch_size=1),
+        DetectionScorer(client, tokenizer=dataset.tokenizer, batch_size=1),
         preprocess=scorer_preprocess,
         postprocess=scorer_postprocess,
     )

@@ -11,6 +11,7 @@ from utils import (
     latents_dir,
     data_dir,
     alive_features_dir,
+    arch_name_to_id,
 )
 
 
@@ -72,9 +73,20 @@ def generate_acts(arch_name):
 
     cache.save_splits(n_splits=cache_cfg.n_splits, save_dir=this_latents_dir)
 
+    cache.save_config(
+        save_dir=this_latents_dir,
+        cfg=cache_cfg,
+        model_name="gpt2"
+    )
+
     # Record and save dead features
     alive_features_dir.mkdir(parents=True, exist_ok=True)
     alive_features = cache.cache.feature_locations[cfg.submodule_path][:, 2].unique()
     torch.save(alive_features, alive_features_dir / f"{arch_name}.pt")
 
     save_sae_config(arch_name, sae)
+
+
+if __name__ == "__main__":
+    for arch in arch_name_to_id.keys():
+        generate_acts(arch)

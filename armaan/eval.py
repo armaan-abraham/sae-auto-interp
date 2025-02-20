@@ -8,11 +8,11 @@ import pandas as pd
 from generate_scores import score_dir
 from utils import results_dir
 
-exp_type = "detection"
+scorer_name = "fuzz"
 
 
 def load_scores(arch_name):
-    this_score_dir = score_dir / arch_name
+    this_score_dir = score_dir / scorer_name / arch_name
 
     txt_files = sorted(
         list(this_score_dir.glob("*.txt")),
@@ -53,14 +53,6 @@ for i, correctnesss in enumerate(all_correctness):
     for correctness in correctnesss:
         df.loc[len(df)] = [arch_names[i], correctness]
 
-
-# %%
-
-df_sub = df[df["arch"] == "2-2"]
-print(df_sub)
-print(df_sub["correctness"].sum() / len(df_sub))
-print(len(df_sub))
-
 # %%
 from armaan.palette import palette
 from matplotlib import pyplot as plt
@@ -74,7 +66,7 @@ ax = sns.barplot(
     palette=[palette[0], palette[3]],
     order=["0-0", "2-2"],
 )
-ax.set_title(f"{exp_type.capitalize()} accuracy")
+ax.set_title(f"{scorer_name.capitalize()} accuracy")
 ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"])
 ax.set_ylabel("Accuracy")
 ax.set_xlabel(None)
@@ -95,8 +87,11 @@ annotator = Annotator(
 
 annotator.configure(
     test="Mann-Whitney",
-    text_format="star",
-    hide_non_significant=True,
+    text_format="simple",
+    hide_non_significant=False,
 )
 annotator.apply_and_annotate()
-plt.savefig(results_dir / f"{exp_type}_accuracy.png", dpi=300)
+results_dir.mkdir(parents=True, exist_ok=True)
+plt.savefig(results_dir / f"{scorer_name}_accuracy.png", dpi=300)
+
+# %%

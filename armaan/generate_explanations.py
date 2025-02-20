@@ -9,11 +9,10 @@ from sae_auto_interp.clients import OpenRouter
 import os
 import orjson
 from functools import partial
-from utils import data_dir, load_feature_dataset
+from utils import data_dir, load_feature_dataset, arch_name_to_id
 
 explanation_dir = data_dir / "explanations"
 explanation_dir.mkdir(parents=True, exist_ok=True)
-
 
 def generate_explanations(arch_name):
     experiment_cfg = ExperimentConfig(
@@ -62,3 +61,8 @@ def generate_explanations(arch_name):
     )
     number_of_parallel_latents = 20
     asyncio.run(pipeline.run(number_of_parallel_latents))
+
+
+if __name__ == "__main__":
+    generate_explanations("2-2")
+    # for arch in arch_name_to_id.keys(): generate_explanations(arch)

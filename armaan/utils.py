@@ -27,14 +27,14 @@ base_data_dir = Path(__file__).parent.parent / "data"
 
 data_dir = base_data_dir / cfg.experiment_name
 
-results_dir = Path(__file__).parent.parent / "results"
+results_dir = Path(__file__).parent.parent / "results" / cfg.experiment_name
 
+arch_name_to_id = {
+    "0-0": "mildly-good-bear",
+    "2-2": "only-suited-cat",
+}
 
 def load_sae(arch_name):
-    arch_name_to_id = {
-        "0-0": "mildly-good-bear",
-        "2-2": "only-suited-cat",
-    }
     sae = DeepSAE.load(
         arch_name, load_from_s3=True, model_id=arch_name_to_id[arch_name]
     ).eval()
@@ -64,7 +64,7 @@ def load_tokenizer():
 def load_feature_dataset(arch_name):
     feature_cfg = load_feature_config(arch_name)
 
-    num_features = 100
+    num_features = 250
     alive_features = torch.load(alive_features_dir / f"{arch_name}.pt")
     feature_dict = {cfg.submodule_path: alive_features[:num_features]}
 
@@ -92,3 +92,5 @@ def save_sae_config(arch_name, sae):
 def load_sae_config(arch_name):
     with open(latents_dir / arch_name / "sae_config.json", "r") as f:
         return json.load(f)
+
+current_arch = "2-2"

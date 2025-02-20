@@ -4,7 +4,14 @@ from sae_auto_interp.config import CacheConfig
 from sae_auto_interp.features import FeatureCache
 from functools import partial
 from sae_auto_interp.autoencoders.wrapper import AutoencoderLatents
-from utils import load_sae, cfg, save_sae_config, latents_dir, data_dir, alive_features_dir
+from utils import (
+    load_sae,
+    cfg,
+    save_sae_config,
+    latents_dir,
+    data_dir,
+    alive_features_dir,
+)
 
 
 def generate_acts(arch_name):
@@ -12,7 +19,7 @@ def generate_acts(arch_name):
     # Later tokenization functions will assume that EOS token != PAD token
     model_orig.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
-    submodule = model_orig.transformer.h[cfg.layer-1]
+    submodule = model_orig.transformer.h[cfg.layer - 1]
 
     sae = load_sae(arch_name)
 
@@ -53,9 +60,8 @@ def generate_acts(arch_name):
     cache = FeatureCache(
         model,
         submodule_dict,
-        batch_size = cache_cfg.batch_size,
+        batch_size=cache_cfg.batch_size,
     )
-
 
     cache.run(cache_cfg.n_tokens, tokens)
 
@@ -64,10 +70,7 @@ def generate_acts(arch_name):
     this_latents_dir = latents_dir / arch_name
     this_latents_dir.mkdir(parents=True, exist_ok=True)
 
-    cache.save_splits(
-        n_splits=cache_cfg.n_splits,
-        save_dir=this_latents_dir
-    )
+    cache.save_splits(n_splits=cache_cfg.n_splits, save_dir=this_latents_dir)
 
     # Record and save dead features
     alive_features_dir.mkdir(parents=True, exist_ok=True)

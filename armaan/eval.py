@@ -10,10 +10,14 @@ from utils import results_dir
 
 exp_type = "detection"
 
+
 def load_scores(arch_name):
     this_score_dir = score_dir / arch_name
 
-    txt_files = sorted(list(this_score_dir.glob("*.txt")), key=lambda x: int(x.stem.split("feature")[-1]))
+    txt_files = sorted(
+        list(this_score_dir.glob("*.txt")),
+        key=lambda x: int(x.stem.split("feature")[-1]),
+    )
 
     all_correctness = []
     num_invalid = 0
@@ -22,7 +26,7 @@ def load_scores(arch_name):
     for txt_file in txt_files:
         with open(txt_file, "r") as f:
             scores = orjson.loads(f.read())
-        
+
         invalid = len([score for score in scores if score["prediction"] == -1])
         num_invalid += invalid
         print(f"Number invalid: {invalid}")
@@ -38,6 +42,7 @@ def load_scores(arch_name):
     print(f"Total: {num_invalid + len(all_correctness)}")
 
     return all_correctness
+
 
 # %%
 
@@ -62,16 +67,22 @@ from matplotlib import pyplot as plt
 from statannotations.Annotator import Annotator
 
 plt.figure(figsize=(6, 5))
-ax = sns.barplot(data=df, x="arch", y="correctness", palette=[palette[0], palette[3]], order=["0-0", "2-2"])
+ax = sns.barplot(
+    data=df,
+    x="arch",
+    y="correctness",
+    palette=[palette[0], palette[3]],
+    order=["0-0", "2-2"],
+)
 ax.set_title(f"{exp_type.capitalize()} accuracy")
 ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"])
 ax.set_ylabel("Accuracy")
 ax.set_xlabel(None)
-ax.axhline(y=0.5, color='red', linestyle='--', alpha=0.8, linewidth=1)
+ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
 
 # Add value labels on top of each bar
 for i in ax.containers:
-    ax.bar_label(i, fmt='%.3f', padding=3)
+    ax.bar_label(i, fmt="%.3f", padding=3)
 
 pairs = [("2-2", "0-0")]
 annotator = Annotator(
@@ -89,4 +100,3 @@ annotator.configure(
 )
 annotator.apply_and_annotate()
 plt.savefig(results_dir / f"{exp_type}_accuracy.png", dpi=300)
-

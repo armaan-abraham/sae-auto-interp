@@ -12,32 +12,30 @@ import orjson
 from functools import partial
 from utils import load_feature_dataset, data_dir, cfg
 from generate_explanations import explanation_dir
-from sae_auto_interp.features.loader import (
-    FeatureLoader
-)
+from sae_auto_interp.features.loader import FeatureLoader
 
 
 score_dir = data_dir / "scores"
 
+
 def generate_scores(arch_name):
     experiment_cfg = ExperimentConfig(
-        n_examples_test=20, # Number of examples to sample for testing
+        n_examples_test=20,  # Number of examples to sample for testing
         n_random=20,
-        n_quantiles=4, # Number of quantiles to sample
-        example_ctx_len=64, # Length of each example
-        test_type="quantiles", # Type of sampler to use for testing. 
-
+        n_quantiles=4,  # Number of quantiles to sample
+        example_ctx_len=64,  # Length of each example
+        test_type="quantiles",  # Type of sampler to use for testing.
         n_examples_train=0,
     )
     tokens = torch.load(data_dir / "tokens.pt")
-    constructor=partial(
-                default_constructor,
-                tokens=tokens,
-                n_random=experiment_cfg.n_random, 
-                ctx_len=experiment_cfg.example_ctx_len, 
-                max_examples=10000
-            )
-    sampler = partial(sample,cfg=experiment_cfg)
+    constructor = partial(
+        default_constructor,
+        tokens=tokens,
+        n_random=experiment_cfg.n_random,
+        ctx_len=experiment_cfg.example_ctx_len,
+        max_examples=10000,
+    )
+    sampler = partial(sample, cfg=experiment_cfg)
 
     dataset, feature_cfg = load_feature_dataset(arch_name)
 
@@ -49,7 +47,7 @@ def generate_scores(arch_name):
 
     # Builds the record from result returned by the pipeline
     def scorer_preprocess(result):
-        record = result.record   
+        record = result.record
         record.explanation = result.explanation
         record.extra_examples = record.random_examples
         return record
@@ -61,8 +59,10 @@ def generate_scores(arch_name):
     def scorer_postprocess(result):
         with open(this_score_dir / f"{result.record.feature}.txt", "wb") as f:
             f.write(orjson.dumps(result.score))
-    
-    client = OpenRouter("anthropic/claude-3.5-sonnet", api_key=os.environ["OPENROUTER_API_KEY"])
+
+    client = OpenRouter(
+        "anthropic/claude-3.5-sonnet", api_key=os.environ["OPENROUTER_API_KEY"]
+    )
 
     scorer_pipe = process_wrapper(
         FuzzingScorer(client, tokenizer=dataset.tokenizer, batch_size=1),

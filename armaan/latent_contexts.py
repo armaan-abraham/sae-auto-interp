@@ -15,15 +15,17 @@ import json
 
 import ipywidgets as widgets
 from IPython.display import clear_output
+from transformers import AutoTokenizer
+from utils import load_sae_config, cfg, data_dir, latents_dir, alive_features_dir
 
-module_name = "layers.9.resid_pre"
-width = 24576
-arch = "0-0"
-exp_name = "1"
-exp_dir = Path(__file__).parent.parent.parent / "data" / "latents" / exp_name
-tokens_path = exp_dir / "tokens.pt"
-latents_dir = exp_dir / f"latents_{arch}"
+module_name = cfg.submodule_path
+arch_name = "0-0"
+width = load_sae_config(arch_name)["width"]
+tokens_path = data_dir / "tokens.pt"
+this_latents_dir = latents_dir / arch_name
 
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
 
 # %%
@@ -125,28 +127,24 @@ def tokens_and_activations_to_html(toks, activations, tokenizer, logit_diffs=Non
     highlighted_text = ''.join(highlighted_text)
     return highlighted_text
 
-
-# %%
-model = LanguageModel("gpt2", device_map="cpu", dispatch=True)
-model.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
-
 # %%
 def load_examples():
     
     feature_cfg = FeatureConfig(width=width)
     experiment_cfg = ExperimentConfig(n_random=0,train_type="quantiles",n_examples_train=50,example_ctx_len=64)
 
-    #module = f".model.layers.{layer_name}.post_feedforward_layernorm"
     module = module_name
 
     tokens = torch.load(tokens_path)
+
+    alive_features = torch.load(alive_features_dir / f"{arch_name}.pt")
     
     dataset = FeatureDataset(
-        raw_dir=latents_dir,
+        raw_dir=this_latents_dir,
         cfg=feature_cfg,
         modules=[module],
-        features={module:torch.tensor(torch.arange(0, 10))},
-        tokenizer=model.tokenizer,
+        features={module: alive_features[:10]},
+        tokenizer=tokenizer,
         tokens=tokens,
     )
     constructor=partial(
@@ -186,7 +184,7 @@ def plot_examples():
             list_tokens.append(example_tokens)
             list_activations.append(activations.tolist())
 
-        display(HTML(tokens_and_activations_to_html(list_tokens, list_activations, model.tokenizer)))
+        display(HTML(tokens_and_activations_to_html(list_tokens, list_activations, tokenizer)))
 
     def on_submit(b):
         key = keys[current_index[0]]

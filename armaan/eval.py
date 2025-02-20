@@ -5,15 +5,15 @@ import orjson
 import numpy as np
 import seaborn as sns
 import pandas as pd
+from generate_scores import score_dir
+from utils import results_dir
 
-path_here = Path(os.getcwd())
-exp_name = "1"
 exp_type = "detection"
 
 def load_scores(arch_name):
-    scores_dir = path_here.parent.parent / "data" / "scores" / exp_name / exp_type / f"scores_{arch_name}"
+    this_score_dir = score_dir / arch_name
 
-    txt_files = sorted(list(scores_dir.glob("*.txt")), key=lambda x: int(x.stem.split("feature")[-1]))
+    txt_files = sorted(list(this_score_dir.glob("*.txt")), key=lambda x: int(x.stem.split("feature")[-1]))
 
     all_correctness = []
     num_invalid = 0
@@ -88,8 +88,5 @@ annotator.configure(
     hide_non_significant=True,
 )
 annotator.apply_and_annotate()
-plt.savefig(path_here / f"{exp_type}_accuracy.png", dpi=300)
+plt.savefig(results_dir / f"{exp_type}_accuracy.png", dpi=300)
 
-# %%
-
-# %%

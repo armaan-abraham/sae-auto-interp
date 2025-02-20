@@ -8,7 +8,7 @@ import pandas as pd
 from generate_scores import score_dir
 from utils import results_dir
 
-scorer_name = "fuzz"
+scorer_name = "detection"
 
 
 def load_scores(arch_name):
@@ -87,11 +87,10 @@ annotator = Annotator(
 
 annotator.configure(
     test="Mann-Whitney",
-    text_format="simple",
+    text_format="star",
     hide_non_significant=False,
 )
 annotator.apply_and_annotate()
 results_dir.mkdir(parents=True, exist_ok=True)
 plt.savefig(results_dir / f"{scorer_name}_accuracy.png", dpi=300)
 
-# %%

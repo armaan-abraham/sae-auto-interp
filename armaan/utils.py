@@ -66,7 +66,7 @@ def load_feature_dataset(arch_name):
 
     num_features = 250
     alive_features = torch.load(alive_features_dir / f"{arch_name}.pt")
-    feature_dict = {cfg.submodule_path: alive_features[:num_features]}
+    feature_dict = {cfg.submodule_path: alive_features[num_features:(num_features * 2)]}
 
     tokens = torch.load(data_dir / "tokens.pt")
 

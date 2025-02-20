@@ -70,7 +70,7 @@ def generate_scores(arch_name, scorer_name):
     )
 
     scorer_pipe = process_wrapper(
-        DetectionScorer(client, tokenizer=dataset.tokenizer, batch_size=1),
+        scorers[scorer_name](client, tokenizer=dataset.tokenizer, batch_size=1),
         preprocess=scorer_preprocess,
         postprocess=scorer_postprocess,
     )
@@ -82,3 +82,8 @@ def generate_scores(arch_name, scorer_name):
     )
     number_of_parallel_latents = 20
     asyncio.run(pipeline.run(number_of_parallel_latents))
+
+if __name__ == "__main__":
+    for arch in arch_name_to_id.keys():
+        generate_scores(arch, "detection")
+        generate_scores(arch, "fuzz")

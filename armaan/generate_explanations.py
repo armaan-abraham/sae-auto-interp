@@ -64,5 +64,5 @@ def generate_explanations(arch_name):
 
 
 if __name__ == "__main__":
-    generate_explanations("2-2")
-    # for arch in arch_name_to_id.keys(): generate_explanations(arch)
+    # generate_explanations("2-2")
+    for arch in arch_name_to_id.keys(): generate_explanations(arch)

@@ -32,6 +32,7 @@ results_dir = Path(__file__).parent.parent / "results" / cfg.experiment_name
 arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",
+    "2-4-4-2": "merely-finer-feline",
 }
 
 def load_sae(arch_name):

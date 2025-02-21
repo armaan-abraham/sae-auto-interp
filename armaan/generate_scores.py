@@ -84,6 +84,5 @@ def generate_scores(arch_name, scorer_name):
     asyncio.run(pipeline.run(number_of_parallel_latents))
 
 if __name__ == "__main__":
-    for arch in arch_name_to_id.keys():
-        generate_scores(arch, "detection")
-        generate_scores(arch, "fuzz")
+    # generate_scores("2-4-4-2", "detection")
+    generate_scores("2-4-4-2", "fuzz")

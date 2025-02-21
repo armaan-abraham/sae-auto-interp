@@ -45,12 +45,13 @@ def load_scores(arch_name):
 
 # %%
 
-arch_names = ["2-2", "0-0"]
+arch_names = ["2-2", "0-0", "2-4-4-2"]
 all_correctness = [load_scores(arch_name) for arch_name in arch_names]
 df = pd.DataFrame(columns=["arch", "correctness"])
 for i, correctnesss in enumerate(all_correctness):
     for correctness in correctnesss:
         df.loc[len(df)] = [arch_names[i], correctness]
+
 
 # %%
 from armaan.palette import palette
@@ -58,6 +59,11 @@ from matplotlib import pyplot as plt
 from statannotations.Annotator import Annotator
 
 plt.figure(figsize=(4, 3.5))
+for arch_name in arch_names:
+    acc = df[df["arch"] == arch_name]["correctness"].mean()
+    print(f"{arch_name}: {acc:.3f}")
+
+order = ["0-0", "2-2", "2-4-4-2"]
 ax = sns.barplot(
     data=df,
     x="arch",
@@ -66,7 +72,7 @@ ax = sns.barplot(
     order=["0-0", "2-2"],
 )
 ax.set_title(f"Automated intepretability score ({scorer_name})", fontsize=10)
-ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"], fontsize=8)
+ax.set_xticklabels(["Shallow", "Deep (1 dense)", "Deep (2 dense)"], fontsize=8)
 ax.set_ylabel("Accuracy", fontsize=10)
 ax.set_xlabel(None)
 ax.tick_params(axis='both', which='major', labelsize=8)
@@ -76,13 +82,14 @@ ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
 for i in ax.containers:
     ax.bar_label(i, fmt="%.3f", padding=3, fontsize=8)
 
-pairs = [("2-2", "0-0")]
+pairs = [("0-0", "2-2")]
 annotator = Annotator(
     ax,
     pairs,
     data=df,
     x="arch",
     y="correctness",
+    order=order,
 )
 
 annotator.configure(

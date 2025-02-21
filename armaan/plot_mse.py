@@ -1,6 +1,7 @@
 # %%
 import pandas as pd
 import numpy as np
+from utils import results_png_dir, results_svg_dir
 
 results_df = pd.DataFrame(columns=["k", "normalized_mse", "arch"])
 results_df.loc[0] = [64, 0.187, "0-0"]
@@ -35,6 +36,7 @@ ax.set_xlabel("k")
 ax.set_title("MSE sparsity frontier")
 ax.legend(title=None)
 
-plt.savefig(f"mse_sparsity_frontier.png", dpi=300)
+plt.savefig(results_png_dir / "mse_sparsity_frontier.png", dpi=300)
+plt.savefig(results_svg_dir / "mse_sparsity_frontier.svg")
 
 # %%

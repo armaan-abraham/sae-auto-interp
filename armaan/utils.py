@@ -28,6 +28,10 @@ base_data_dir = Path(__file__).parent.parent / "data"
 data_dir = base_data_dir / cfg.experiment_name
 
 results_dir = Path(__file__).parent.parent / "results" / cfg.experiment_name
+results_png_dir = results_dir / "png"
+results_svg_dir = results_dir / "svg"
+results_png_dir.mkdir(parents=True, exist_ok=True)
+results_svg_dir.mkdir(parents=True, exist_ok=True)
 
 arch_name_to_id = {
     "0-0": "mildly-good-bear",

@@ -6,7 +6,7 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 from generate_scores import score_dir
-from utils import results_dir
+from utils import results_dir, results_png_dir, results_svg_dir
 
 scorer_name = "fuzz"
 
@@ -68,8 +68,8 @@ ax = sns.barplot(
     data=df,
     x="arch",
     y="correctness",
-    palette=[palette[2], palette[4]],
-    order=["0-0", "2-2"],
+    palette=[palette[3], palette[4], palette[2]],
+    order=order,
 )
 ax.set_title(f"Automated intepretability score ({scorer_name})", fontsize=10)
 ax.set_xticklabels(["Shallow", "Deep (1 dense)", "Deep (2 dense)"], fontsize=8)
@@ -103,8 +103,8 @@ annotator.configure(
 )
 annotator.apply_and_annotate()
 results_dir.mkdir(parents=True, exist_ok=True)
-plt.savefig(results_dir / f"{scorer_name}_accuracy.png", dpi=300)
-plt.savefig(results_dir / f"{scorer_name}_accuracy.svg")
+plt.savefig(results_png_dir / f"{scorer_name}_accuracy.png", dpi=300)
+plt.savefig(results_svg_dir / f"{scorer_name}_accuracy.svg")
 
 
 # %%

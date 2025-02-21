@@ -8,7 +8,7 @@ import pandas as pd
 from generate_scores import score_dir
 from utils import results_dir
 
-scorer_name = "detection"
+scorer_name = "fuzz"
 
 
 def load_scores(arch_name):
@@ -29,7 +29,6 @@ def load_scores(arch_name):
 
         invalid = len([score for score in scores if score["prediction"] == -1])
         num_invalid += invalid
-        print(f"Number invalid: {invalid}")
         scores = [score for score in scores if score["prediction"] != -1]
         if not scores:
             continue
@@ -58,23 +57,24 @@ from armaan.palette import palette
 from matplotlib import pyplot as plt
 from statannotations.Annotator import Annotator
 
-plt.figure(figsize=(6, 5))
+plt.figure(figsize=(4, 3.5))
 ax = sns.barplot(
     data=df,
     x="arch",
     y="correctness",
-    palette=[palette[0], palette[3]],
+    palette=[palette[2], palette[4]],
     order=["0-0", "2-2"],
 )
-ax.set_title(f"{scorer_name.capitalize()} accuracy")
-ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"])
-ax.set_ylabel("Accuracy")
+ax.set_title(f"Automated intepretability score ({scorer_name})", fontsize=10)
+ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"], fontsize=8)
+ax.set_ylabel("Accuracy", fontsize=10)
 ax.set_xlabel(None)
+ax.tick_params(axis='both', which='major', labelsize=8)
 ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
 
 # Add value labels on top of each bar
 for i in ax.containers:
-    ax.bar_label(i, fmt="%.3f", padding=3)
+    ax.bar_label(i, fmt="%.3f", padding=3, fontsize=8)
 
 pairs = [("2-2", "0-0")]
 annotator = Annotator(
@@ -89,8 +89,15 @@ annotator.configure(
     test="Mann-Whitney",
     text_format="star",
     hide_non_significant=False,
+    line_offset=5,
+    use_fixed_offset=True,
+    
+    
 )
 annotator.apply_and_annotate()
 results_dir.mkdir(parents=True, exist_ok=True)
 plt.savefig(results_dir / f"{scorer_name}_accuracy.png", dpi=300)
+plt.savefig(results_dir / f"{scorer_name}_accuracy.svg")
 
+
+# %%

@@ -163,12 +163,13 @@ def tokens_and_activations_to_html(
 def load_examples():
     feature_cfg = load_feature_config(arch_name)
     experiment_cfg = ExperimentConfig(
-        n_random=0, train_type="quantiles", n_examples_train=50, example_ctx_len=64
+        n_random=0, train_type="quantiles", n_examples_train=20, example_ctx_len=16, n_quantiles=10
     )
 
     module = module_name
 
     tokens = torch.load(tokens_path)
+    print(tokens.shape)
 
     alive_features = torch.load(alive_features_dir / f"{arch_name}.pt")
 
@@ -184,7 +185,7 @@ def load_examples():
         default_constructor,
         tokens=dataset.tokens,
         n_random=experiment_cfg.n_random,
-        ctx_len=64,
+        ctx_len=16,
         max_examples=10000,
     )
     sampler = partial(sample, cfg=experiment_cfg)
@@ -386,3 +387,5 @@ def tokens_and_activations_to_html(
 
 # %%
 plot_examples()
+
+# %%

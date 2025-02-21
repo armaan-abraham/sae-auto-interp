@@ -27,3 +27,7 @@ def download_data_dir(exp_name):
     )
     with zipfile.ZipFile(f"{exp_name}.zip", "r") as zip_ref:
         zip_ref.extractall(base_data_dir / exp_name)
+
+
+if __name__ == "__main__":
+    download_data_dir("gpt2")

@@ -19,7 +19,7 @@ from transformers import AutoTokenizer
 from utils import load_sae_config, cfg, data_dir, latents_dir, alive_features_dir, load_feature_config
 
 module_name = cfg.submodule_path
-arch_name = "2-2"
+arch_name = "2-4-4-2"
 width = load_sae_config(arch_name)["width"]
 tokens_path = data_dir / "tokens.pt"
 this_latents_dir = latents_dir / arch_name

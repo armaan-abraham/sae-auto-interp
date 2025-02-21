@@ -25,5 +25,11 @@ def download_data_dir(exp_name):
     s3_client.download_file(
         "deep-sae", f"auto-interp/{exp_name}.zip", f"{exp_name}.zip"
     )
+    print(f"Downloaded {exp_name}.zip")
     with zipfile.ZipFile(f"{exp_name}.zip", "r") as zip_ref:
         zip_ref.extractall(base_data_dir / exp_name)
+    print(f"Extracted {exp_name}.zip")
+
+
+if __name__ == "__main__":
+    download_data_dir("gpt2")

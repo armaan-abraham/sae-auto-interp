@@ -8,7 +8,7 @@ import pandas as pd
 from generate_scores import score_dir
 from utils import results_dir
 
-scorer_name = "detection"
+scorer_name = "fuzz"
 
 
 def load_scores(arch_name):
@@ -29,7 +29,6 @@ def load_scores(arch_name):
 
         invalid = len([score for score in scores if score["prediction"] == -1])
         num_invalid += invalid
-        print(f"Number invalid: {invalid}")
         scores = [score for score in scores if score["prediction"] != -1]
         if not scores:
             continue
@@ -46,28 +45,34 @@ def load_scores(arch_name):
 
 # %%
 
-arch_names = ["2-2", "0-0"]
+arch_names = ["2-2", "0-0", "2-4-4-2"]
 all_correctness = [load_scores(arch_name) for arch_name in arch_names]
 df = pd.DataFrame(columns=["arch", "correctness"])
 for i, correctnesss in enumerate(all_correctness):
     for correctness in correctnesss:
         df.loc[len(df)] = [arch_names[i], correctness]
 
+
 # %%
 from armaan.palette import palette
 from matplotlib import pyplot as plt
 from statannotations.Annotator import Annotator
 
+for arch_name in arch_names:
+    acc = df[df["arch"] == arch_name]["correctness"].mean()
+    print(f"{arch_name}: {acc:.3f}")
+
 plt.figure(figsize=(6, 5))
+order = ["0-0", "2-2", "2-4-4-2"]
 ax = sns.barplot(
     data=df,
     x="arch",
     y="correctness",
-    palette=[palette[0], palette[3]],
-    order=["0-0", "2-2"],
+    palette=[palette[3], palette[4], palette[2]],
+    order=order,
 )
 ax.set_title(f"{scorer_name.capitalize()} accuracy")
-ax.set_xticklabels(["Shallow SAE", "Deep SAE (1 hidden layer)"])
+ax.set_xticklabels(["Shallow", "Deep (1 dense)", "Deep (2 dense)"])
 ax.set_ylabel("Accuracy")
 ax.set_xlabel(None)
 ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
@@ -76,13 +81,14 @@ ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
 for i in ax.containers:
     ax.bar_label(i, fmt="%.3f", padding=3)
 
-pairs = [("2-2", "0-0")]
+pairs = [("0-0", "2-2")]
 annotator = Annotator(
     ax,
     pairs,
     data=df,
     x="arch",
     y="correctness",
+    order=order,
 )
 
 annotator.configure(
@@ -94,3 +100,5 @@ annotator.apply_and_annotate()
 results_dir.mkdir(parents=True, exist_ok=True)
 plt.savefig(results_dir / f"{scorer_name}_accuracy.png", dpi=300)
 
+
+# %%

@@ -45,7 +45,7 @@ def load_scores(arch_name):
 
 # %%
 
-arch_names = ["2-2", "0-0", "2-4-4-2"]
+arch_names = ["2-2", "0-0_act_decay", "2-4-4-2"]
 all_correctness = [load_scores(arch_name) for arch_name in arch_names]
 df = pd.DataFrame(columns=["arch", "correctness"])
 for i, correctnesss in enumerate(all_correctness):
@@ -63,7 +63,7 @@ for arch_name in arch_names:
     acc = df[df["arch"] == arch_name]["correctness"].mean()
     print(f"{arch_name}: {acc:.3f}")
 
-order = ["0-0", "2-2", "2-4-4-2"]
+order = ["0-0_act_decay", "2-2", "2-4-4-2"]
 ax = sns.barplot(
     data=df,
     x="arch",
@@ -82,7 +82,7 @@ ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
 for i in ax.containers:
     ax.bar_label(i, fmt="%.3f", padding=3, fontsize=8)
 
-pairs = [("0-0", "2-2")]
+pairs = [("0-0_act_decay", "2-2"), ("0-0_act_decay", "2-4-4-2")]
 annotator = Annotator(
     ax,
     pairs,
@@ -95,7 +95,7 @@ annotator = Annotator(
 annotator.configure(
     test="Mann-Whitney",
     text_format="star",
-    hide_non_significant=False,
+    hide_non_significant=True,
     line_offset=5,
     use_fixed_offset=True,
     

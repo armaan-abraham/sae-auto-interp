@@ -37,6 +37,8 @@ arch_name_to_id = {
     "0-0": "mildly-good-bear",
     "2-2": "only-suited-cat",
     "2-4-4-2": "merely-finer-feline",
+    "2-2_resample": "highly-modern-cod",
+    "0-0_act_decay": "evenly-hip-quail",
 }
 
 def load_sae(arch_name):

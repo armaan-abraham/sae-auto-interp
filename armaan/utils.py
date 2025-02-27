@@ -101,3 +101,14 @@ def load_sae_config(arch_name):
         return json.load(f)
 
 current_arch = "2-2"
+
+rc_params = {
+    'font.size': 8,
+    'axes.titlesize': 10,
+    'axes.labelsize': 10,
+    'figure.constrained_layout.use': True,
+    'figure.constrained_layout.h_pad': 0.1,
+    'figure.constrained_layout.w_pad': 0.1,
+    'figure.constrained_layout.hspace': 0.1,
+    'figure.constrained_layout.wspace': 0.1,
+}

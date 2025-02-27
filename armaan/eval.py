@@ -6,10 +6,9 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 from generate_scores import score_dir
-from utils import results_dir, results_png_dir, results_svg_dir
+from utils import results_dir, results_png_dir, results_svg_dir, rc_params
 
 scorer_name = "fuzz"
-
 
 def load_scores(arch_name):
     this_score_dir = score_dir / scorer_name / arch_name
@@ -58,29 +57,33 @@ from armaan.palette import palette
 from matplotlib import pyplot as plt
 from statannotations.Annotator import Annotator
 
-plt.figure(figsize=(4, 3.5))
+plt.rcParams.update(rc_params)
+
+plt.figure(figsize=(3.8, 3.5))
+
 for arch_name in arch_names:
     acc = df[df["arch"] == arch_name]["correctness"].mean()
     print(f"{arch_name}: {acc:.3f}")
+
+df["correctness_perc"] = df["correctness"] * 100
 
 order = ["0-0_act_decay", "2-2", "2-4-4-2"]
 ax = sns.barplot(
     data=df,
     x="arch",
-    y="correctness",
+    y="correctness_perc",
     palette=[palette[3], palette[4], palette[2]],
     order=order,
 )
-ax.set_title(f"Automated intepretability score ({scorer_name})", fontsize=10)
-ax.set_xticklabels(["Shallow", "Deep (1 dense)", "Deep (2 dense)"], fontsize=8)
-ax.set_ylabel("Accuracy", fontsize=10)
+ax.set_title(f"Automated interpretability score ({scorer_name})")
+ax.set_xticklabels(["Shallow", "Deep (1 non-sparse)", "Deep (2 non-sparse)"], rotation=12)
+ax.set_ylabel("Accuracy (%)")
 ax.set_xlabel(None)
-ax.tick_params(axis='both', which='major', labelsize=8)
-ax.axhline(y=0.5, color="red", linestyle="--", alpha=0.8, linewidth=1)
+ax.set_yticks([0, 25, 50, 75])
 
 # Add value labels on top of each bar
 for i in ax.containers:
-    ax.bar_label(i, fmt="%.3f", padding=3, fontsize=8)
+    ax.bar_label(i, fmt="%.1f", padding=3, fontsize=8)
 
 pairs = [("0-0_act_decay", "2-2"), ("0-0_act_decay", "2-4-4-2")]
 annotator = Annotator(
@@ -88,7 +91,7 @@ annotator = Annotator(
     pairs,
     data=df,
     x="arch",
-    y="correctness",
+    y="correctness_perc",
     order=order,
 )
 
@@ -98,9 +101,8 @@ annotator.configure(
     hide_non_significant=True,
     line_offset=5,
     use_fixed_offset=True,
-    
-    
 )
+
 annotator.apply_and_annotate()
 results_dir.mkdir(parents=True, exist_ok=True)
 plt.savefig(results_png_dir / f"{scorer_name}_accuracy.png", dpi=300)

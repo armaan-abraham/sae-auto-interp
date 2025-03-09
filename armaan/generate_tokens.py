@@ -5,7 +5,7 @@ from utils import data_dir
 
 
 def generate_tokens():
-    MAX_TOKENS = 1_000_000
+    MAX_TOKENS = 2_000_000
 
     iterator = stream_training_chunks(
         dataset_batch_size_entries=2,

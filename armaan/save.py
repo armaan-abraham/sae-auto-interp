@@ -31,4 +31,4 @@ def download_data_dir(exp_name):
 
 
 if __name__ == "__main__":
-    download_data_dir("gpt2")
+    upload_data_dir()

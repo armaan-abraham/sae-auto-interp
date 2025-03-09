@@ -44,7 +44,10 @@ def load_scores(arch_name):
 
 # %%
 
-arch_names = ["2-2", "0-0_act_decay", "2-4-4-2"]
+arch_names = ["LayernormSqueeze1eNeg4lr4eNeg4",
+            "2x2LayernormSqueeze1eNeg4lr4eNeg4",
+            "2x4x4x2LayernormSqueeze2eNeg4lr4eNeg4",
+]
 all_correctness = [load_scores(arch_name) for arch_name in arch_names]
 df = pd.DataFrame(columns=["arch", "correctness"])
 for i, correctnesss in enumerate(all_correctness):
@@ -67,7 +70,7 @@ for arch_name in arch_names:
 
 df["correctness_perc"] = df["correctness"] * 100
 
-order = ["0-0_act_decay", "2-2", "2-4-4-2"]
+order = arch_names
 ax = sns.barplot(
     data=df,
     x="arch",
@@ -85,7 +88,7 @@ ax.set_yticks([0, 25, 50, 75])
 for i in ax.containers:
     ax.bar_label(i, fmt="%.1f", padding=3, fontsize=8)
 
-pairs = [("0-0_act_decay", "2-2"), ("0-0_act_decay", "2-4-4-2")]
+pairs = [("LayernormSqueeze1eNeg4lr4eNeg4", "2x2LayernormSqueeze1eNeg4lr4eNeg4"), ("LayernormSqueeze1eNeg4lr4eNeg4", "2x4x4x2LayernormSqueeze2eNeg4lr4eNeg4")]
 annotator = Annotator(
     ax,
     pairs,

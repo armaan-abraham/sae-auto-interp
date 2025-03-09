@@ -28,7 +28,7 @@ dependencies = [
     "pip>=25.0.1",
     "ipykernel>=6.29.5",
     "armaan@git+https://github.com/armaan-abraham/tools.git",
-    "mlsae@git+https://github.com/armaan-abraham/mlsae@f814b288b7041c334f083615ab8ec388681be9e7",
+    "mlsae@git+https://github.com/armaan-abraham/mlsae@master",
     "ipywidgets>=8.1.5",
     "seaborn>=0.13.2",
     "pandas>=2.2.3",

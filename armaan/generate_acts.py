@@ -12,6 +12,7 @@ from utils import (
     data_dir,
     alive_features_dir,
     arch_name_to_id,
+    load_sae_config,
 )
 
 
@@ -29,7 +30,7 @@ def generate_acts(arch_name):
     def _forward(sae, x):
         x -= x.mean(dim=-1, keepdim=True)
         x /= x.norm(dim=-1, keepdim=True)
-        return sae(x)[3]
+        return sae(x)["feature_acts"]
 
     autoencoder_latents = AutoencoderLatents(
         sae,
@@ -48,7 +49,7 @@ def generate_acts(arch_name):
         dataset_split="train",
         batch_size=16,
         ctx_len=64,
-        n_tokens=1_000_000,
+        n_tokens=2_000_000,
         n_splits=cfg.cache_splits,
         dataset_row="text",
     )

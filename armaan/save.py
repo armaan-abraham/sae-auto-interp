@@ -6,15 +6,17 @@ def upload_data_dir():
 
     archive_name = f"{data_dir}.zip"
     shutil.make_archive(data_dir, "zip", data_dir)
+
+    import os
+
+    print(f"Zip file size: {os.path.getsize(archive_name) / (1024*1024):.2f} MB")
+
     import boto3
 
     s3_client = boto3.client("s3")
     s3_client.upload_file(
         f"{data_dir}.zip", "deep-sae", f"auto-interp/{data_dir.name}.zip"
     )
-    import os
-
-    print(f"Zip file size: {os.path.getsize(archive_name) / (1024*1024):.2f} MB")
 
 
 def download_data_dir(exp_name):

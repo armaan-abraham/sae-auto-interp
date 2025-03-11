@@ -19,7 +19,7 @@ class Config:
         return f"layers.{self.layer}.{self.site}"
 
     experiment_name: str = "gpt2-squeeze"
-    load_from_s3: bool = False
+    load_from_s3: bool = True
 
 
 cfg = Config()
@@ -42,6 +42,7 @@ arch_name_to_id = {
     "0-0_act_decay": "evenly-hip-quail",
     "2x4x4x2LayernormSqueeze2eNeg4lr4eNeg4": "really-proven-oyster",
     "2x2LayernormSqueeze1eNeg4lr4eNeg4": "purely-holy-oyster",
+    "2x2LayernormSqueeze1eNeg5lr4eNeg4": "merely-mutual-rat",
     "LayernormSqueeze1eNeg4lr4eNeg4": "badly-tender-lizard",
 }
 

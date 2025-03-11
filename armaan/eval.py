@@ -46,6 +46,7 @@ def load_scores(arch_name):
 
 arch_names = ["LayernormSqueeze1eNeg4lr4eNeg4",
             "2x2LayernormSqueeze1eNeg4lr4eNeg4",
+            "2x2LayernormSqueeze1eNeg5lr4eNeg4",
             "2x4x4x2LayernormSqueeze2eNeg4lr4eNeg4",
 ]
 all_correctness = [load_scores(arch_name) for arch_name in arch_names]
@@ -79,7 +80,10 @@ ax = sns.barplot(
     order=order,
 )
 ax.set_title(f"Automated interpretability score ({scorer_name})")
-ax.set_xticklabels(["Shallow", "Deep (1 non-sparse)", "Deep (2 non-sparse)"], rotation=12)
+ax.set_xticklabels(["Shallow", "2x2 (squeeze-lg)", "2x2 (squeeze-sm)", "2x4x4x2 (squeeze-lg)"], rotation=12)
+# Rotate x-tick labels by 45 degrees
+plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+
 ax.set_ylabel("Accuracy (%)")
 ax.set_xlabel(None)
 ax.set_yticks([0, 25, 50, 75])
@@ -88,7 +92,7 @@ ax.set_yticks([0, 25, 50, 75])
 for i in ax.containers:
     ax.bar_label(i, fmt="%.1f", padding=3, fontsize=8)
 
-pairs = [("LayernormSqueeze1eNeg4lr4eNeg4", "2x2LayernormSqueeze1eNeg4lr4eNeg4"), ("LayernormSqueeze1eNeg4lr4eNeg4", "2x4x4x2LayernormSqueeze2eNeg4lr4eNeg4")]
+pairs = [("LayernormSqueeze1eNeg4lr4eNeg4", "2x2LayernormSqueeze1eNeg5lr4eNeg4"), ("2x2LayernormSqueeze1eNeg4lr4eNeg4", "2x2LayernormSqueeze1eNeg5lr4eNeg4")]
 annotator = Annotator(
     ax,
     pairs,
